@@ -1,141 +1,224 @@
-.page {
-  --background: #fafafa;
-  --foreground: #fff;
+/* page.module.css (Main Feed) */
 
-  --text-primary: #000;
-  --text-secondary: #666;
-
-  --button-primary-hover: #383838;
-  --button-secondary-hover: #f2f2f2;
-  --button-secondary-border: #ebebeb;
-
-  display: flex;
+/* Modern App Layout - Clean, Content Forward */
+.app {
   min-height: 100vh;
-  align-items: center;
-  justify-content: center;
-  font-family: var(--font-geist-sans);
-  background-color: var(--background);
+  /* padding-bottom: 5rem; This can be moved to media query */
+  background-color: var(--bg-app);
+  color: var(--text-primary);
+  width: 100%;
 }
 
-.main {
+/* Three Column Grid for Desktop */
+.desktopGrid {
   display: flex;
-  min-height: 100vh;
+  justify-content: center;
+  max-width: 1400px;
+  margin: 0 auto;
+}
+
+/* Sidebar Containers */
+.leftSidebarWrapper {
+  display: none;
+  /* Hide on mobile by default */
+  width: 280px;
+  flex-shrink: 0;
+}
+
+.rightSidebarWrapper {
+  display: none;
+  /* Hide on mobile by default */
+  width: 320px;
+  flex-shrink: 0;
+}
+
+/* Main Feed Column */
+.mainFeedWrapper {
+  flex: 1;
+  max-width: 680px;
+  /* Facebook/Twitter style width */
   width: 100%;
-  max-width: 800px;
-  flex-direction: column;
-  align-items: flex-start;
+  border-left: 1px solid var(--border-subtle);
+  border-right: 1px solid var(--border-subtle);
+  min-height: 100vh;
+}
+
+@media (min-width: 1024px) {
+  .leftSidebarWrapper {
+    display: block;
+  }
+
+  .rightSidebarWrapper {
+    display: block;
+  }
+}
+
+/* Header - Floating Tech Bar */
+.headerWrapper {
+  position: sticky;
+  top: 0;
+  z-index: 40;
+  padding: 0.75rem 1rem;
+  background: var(--glass);
+  border-bottom: 1px solid var(--border-subtle);
+}
+
+.headerContent {
+  display: flex;
   justify-content: space-between;
-  background-color: var(--foreground);
-  padding: 120px 60px;
+  align-items: center;
+  margin-bottom: 0.5rem;
+  padding: 0 0.5rem;
 }
 
-.intro {
+.brand {
   display: flex;
   flex-direction: column;
-  align-items: flex-start;
-  text-align: left;
-  gap: 24px;
 }
 
-.intro h1 {
-  max-width: 320px;
-  font-size: 40px;
-  font-weight: 600;
-  line-height: 48px;
-  letter-spacing: -2.4px;
-  text-wrap: balance;
-  color: var(--text-primary);
+.logo {
+  font-size: 1.15rem;
+  font-weight: 700;
+  letter-spacing: -0.01em;
+  background: linear-gradient(135deg, #FFF 0%, #AAA 100%);
+  background-clip: text;
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
 }
 
-.intro p {
-  max-width: 440px;
-  font-size: 18px;
-  line-height: 32px;
-  text-wrap: balance;
+.tagline {
+  font-size: 0.65rem;
   color: var(--text-secondary);
+  text-transform: uppercase;
+  letter-spacing: 0.1em;
 }
 
-.intro a {
-  font-weight: 500;
-  color: var(--text-primary);
-}
-
-.ctas {
+.controls {
   display: flex;
-  flex-direction: row;
-  width: 100%;
-  max-width: 440px;
-  gap: 16px;
-  font-size: 14px;
+  gap: 1rem;
 }
 
-.ctas a {
+.controlBtn {
+  width: 2.25rem;
+  height: 2.25rem;
+  border-radius: var(--radius-full);
   display: flex;
-  justify-content: center;
   align-items: center;
-  height: 40px;
-  padding: 0 16px;
-  border-radius: 128px;
-  border: 1px solid transparent;
-  transition: 0.2s;
+  justify-content: center;
+  background: var(--bg-floating);
+  color: var(--text-secondary);
+  border: 1px solid var(--border-subtle);
+  transition: all 0.2s;
+}
+
+.controlBtn:hover {
+  background: var(--bg-card);
+  color: var(--text-primary);
+  border-color: var(--border-highlight);
+}
+
+/* Stories / Highlights - Facebook Style */
+.stories {
+  display: flex;
+  gap: 0.75rem;
+  overflow-x: auto;
+  padding: 0 1rem 1rem;
+  /* Hide scrollbar */
+  scrollbar-width: none;
+  -ms-overflow-style: none;
+  border-bottom: 1px solid var(--border-subtle);
+  margin-bottom: 1rem;
+}
+
+.stories::-webkit-scrollbar {
+  display: none;
+}
+
+.story {
+  flex: 0 0 4.5rem;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 0.25rem;
   cursor: pointer;
-  width: fit-content;
-  font-weight: 500;
+  transition: transform 0.2s;
 }
 
-a.primary {
-  background: var(--text-primary);
-  color: var(--background);
-  gap: 8px;
+.story:hover {
+  transform: scale(1.05);
 }
 
-a.secondary {
-  border-color: var(--button-secondary-border);
+.storyRing {
+  width: 4rem;
+  height: 4rem;
+  border-radius: var(--radius-full);
+  padding: 2px;
+  background: linear-gradient(135deg, var(--accent-primary), var(--bg-subtle));
 }
 
-/* Enable hover only on non-touch devices */
-@media (hover: hover) and (pointer: fine) {
-  a.primary:hover {
-    background: var(--button-primary-hover);
-    border-color: transparent;
-  }
-
-  a.secondary:hover {
-    background: var(--button-secondary-hover);
-    border-color: transparent;
-  }
+.storyUser {
+  width: 100%;
+  height: 100%;
+  border-radius: var(--radius-full);
+  object-fit: cover;
+  border: 2px solid var(--bg-app);
 }
 
-@media (max-width: 600px) {
-  .main {
-    padding: 48px 24px;
-  }
-
-  .intro {
-    gap: 16px;
-  }
-
-  .intro h1 {
-    font-size: 32px;
-    line-height: 40px;
-    letter-spacing: -1.92px;
-  }
+.storyName {
+  font-size: 0.7rem;
+  color: var(--text-secondary);
+  white-space: nowrap;
+  text-overflow: ellipsis;
+  overflow: hidden;
+  max-width: 100%;
 }
 
-@media (prefers-color-scheme: dark) {
-  .logo {
-    filter: invert();
-  }
+/* Feed List */
+.feed {
+  display: flex;
+  flex-direction: column;
+  gap: 0;
+  /* Tight cards */
+}
 
-  .page {
-    --background: #000;
-    --foreground: #000;
+/* Create Post Bar */
+.createPost {
+  padding: 1rem;
+  display: flex;
+  align-items: center;
+  gap: 0.75rem;
+  background: var(--bg-subtle);
+  margin-bottom: 0.5rem;
+  border-bottom: 1px solid var(--border-subtle);
+  border-radius: var(--radius-sm);
+  margin: 0 1rem 1rem 1rem;
+  /* Inset on desktop */
+}
 
-    --text-primary: #ededed;
-    --text-secondary: #999;
+.userAvatar {
+  width: 2.5rem;
+  height: 2.5rem;
+  border-radius: var(--radius-full);
+  background: #333;
+  border: 1px solid var(--border-subtle);
+}
 
-    --button-primary-hover: #ccc;
-    --button-secondary-hover: #1a1a1a;
-    --button-secondary-border: #1a1a1a;
-  }
+.postInput {
+  flex: 1;
+  background: var(--bg-card);
+  height: 2.5rem;
+  border-radius: var(--radius-full);
+  padding: 0 1rem;
+  display: flex;
+  align-items: center;
+  color: var(--text-secondary);
+  font-size: 0.9rem;
+  border: 1px solid var(--border-subtle);
+  cursor: text;
+  transition: border-color 0.2s;
+}
+
+.postInput:hover {
+  border-color: var(--border-highlight);
+  color: var(--text-primary);
 }

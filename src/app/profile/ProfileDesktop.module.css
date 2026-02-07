@@ -1,0 +1,338 @@
+/* ProfileDesktop.module.css */
+
+.container {
+    min-height: 100vh;
+    background-color: var(--bg-deep);
+    /* Facebook dark mode style background */
+    color: var(--text-primary);
+    padding-bottom: 2rem;
+}
+
+/* Cover & Header Section */
+.profileHeader {
+    background: var(--bg-card);
+    max-width: 1250px;
+    margin: 0 auto;
+    border-bottom: 1px solid var(--border-subtle);
+    position: relative;
+    z-index: 10;
+}
+
+.coverPhoto {
+    width: 100%;
+    height: 350px;
+    background-size: cover;
+    background-position: center;
+    border-radius: 0 0 var(--radius-lg) var(--radius-lg);
+    position: relative;
+}
+
+.coverEditBtn {
+    position: absolute;
+    bottom: 1rem;
+    right: 2rem;
+    background: var(--bg-card);
+    color: var(--text-primary);
+    padding: 0.5rem 1rem;
+    border-radius: var(--radius-md);
+    font-weight: 600;
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+    cursor: pointer;
+    transition: background 0.2s;
+}
+
+.coverEditBtn:hover {
+    background: var(--bg-subtle);
+}
+
+.headerContent {
+    padding: 0 2rem 1rem;
+    display: flex;
+    flex-direction: column;
+    position: relative;
+}
+
+@media (min-width: 1024px) {
+    .headerContent {
+        flex-direction: row;
+        align-items: flex-end;
+        padding-bottom: 1rem;
+    }
+}
+
+.avatarWrapper {
+    position: relative;
+    margin-top: -60px;
+    /* Overlap cover */
+    margin-right: 2rem;
+}
+
+.avatar {
+    width: 168px;
+    height: 168px;
+    border-radius: 50%;
+    border: 4px solid var(--bg-card);
+    background: var(--bg-app);
+    object-fit: cover;
+}
+
+.userInfo {
+    margin-top: 1rem;
+    flex: 1;
+}
+
+.nameRow {
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+}
+
+.name {
+    font-size: 2rem;
+    font-weight: 700;
+    color: var(--text-primary);
+}
+
+.verified {
+    color: var(--accent-primary);
+}
+
+.headline {
+    font-size: 1rem;
+    color: var(--text-secondary);
+}
+
+.actionButtons {
+    display: flex;
+    gap: 0.5rem;
+    margin-top: 1rem;
+}
+
+@media (min-width: 1024px) {
+    .actionButtons {
+        margin-top: 0;
+        margin-bottom: 1rem;
+    }
+}
+
+.primaryBtn {
+    background: var(--accent-primary);
+    color: #000;
+    font-weight: 600;
+    padding: 0.5rem 1rem;
+    border-radius: var(--radius-md);
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+    transition: filter 0.2s;
+}
+
+.primaryBtn:hover {
+    filter: brightness(1.1);
+}
+
+.secondaryBtn {
+    background: var(--bg-subtle);
+    color: var(--text-primary);
+    font-weight: 600;
+    padding: 0.5rem 1rem;
+    border-radius: var(--radius-md);
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+    transition: background 0.2s;
+}
+
+.secondaryBtn:hover {
+    background: var(--bg-floating);
+}
+
+/* Navigation Tabs */
+.navTabs {
+    display: flex;
+    gap: 0.5rem;
+    padding: 0 2rem;
+    margin-top: 1rem;
+    border-top: 1px solid var(--border-subtle);
+}
+
+.tab {
+    padding: 1rem 1rem;
+    color: var(--text-secondary);
+    font-weight: 600;
+    cursor: pointer;
+    border-bottom: 3px solid transparent;
+    transition: all 0.2s;
+}
+
+.tab:hover {
+    background: var(--bg-subtle);
+    border-radius: var(--radius-md) var(--radius-md) 0 0;
+}
+
+.activeTab {
+    color: var(--accent-primary);
+    border-bottom-color: var(--accent-primary);
+}
+
+/* Main Content Grid */
+.contentGrid {
+    max-width: 1250px;
+    margin: 1.5rem auto;
+    padding: 0 1rem;
+    display: grid;
+    grid-template-columns: 1fr;
+    gap: 1.5rem;
+}
+
+@media (min-width: 1024px) {
+    .contentGrid {
+        grid-template-columns: 360px 1fr;
+        padding: 0;
+    }
+}
+
+/* Left Sidebar Widgets */
+.introCard,
+.photosCard,
+.statsCard {
+    background: var(--bg-card);
+    border: 1px solid var(--border-subtle);
+    border-radius: var(--radius-lg);
+    padding: 1rem;
+    margin-bottom: 1rem;
+    box-shadow: var(--shadow-sm);
+}
+
+.cardHeader {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 1rem;
+}
+
+.cardTitle {
+    font-weight: 700;
+    font-size: 1.1rem;
+}
+
+.cardLink {
+    color: var(--accent-primary);
+    font-size: 0.9rem;
+    cursor: pointer;
+}
+
+.introItem {
+    display: flex;
+    align-items: center;
+    gap: 0.75rem;
+    margin-bottom: 1rem;
+    color: var(--text-secondary);
+    font-size: 0.95rem;
+}
+
+.grid3 {
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    gap: 0.5rem;
+}
+
+.gridPhoto {
+    width: 100%;
+    aspect-ratio: 1;
+    border-radius: var(--radius-md);
+    object-fit: cover;
+    cursor: pointer;
+    transition: opacity 0.2s;
+}
+
+.gridPhoto:hover {
+    opacity: 0.8;
+}
+
+/* Feed Column */
+.createPost {
+    background: var(--bg-card);
+    border: 1px solid var(--border-subtle);
+    border-radius: var(--radius-lg);
+    padding: 1rem;
+    display: flex;
+    gap: 1rem;
+    margin-bottom: 1.5rem;
+    align-items: center;
+}
+
+.userThumb {
+    width: 40px;
+    height: 40px;
+    border-radius: 50%;
+    object-fit: cover;
+}
+
+.postInput {
+    flex: 1;
+    background: var(--bg-subtle);
+    border: none;
+    border-radius: var(--radius-full);
+    padding: 0.75rem 1rem;
+    color: var(--text-primary);
+    cursor: pointer;
+}
+
+.postInput:hover {
+    background: var(--bg-floating);
+}
+
+.postActions {
+    border-top: 1px solid var(--border-subtle);
+    margin-top: 1rem;
+    padding-top: 0.5rem;
+    display: flex;
+    justify-content: space-around;
+}
+
+.postAction {
+    flex: 1;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 0.5rem;
+    padding: 0.5rem;
+    border-radius: var(--radius-md);
+    color: var(--text-secondary);
+    font-weight: 600;
+    cursor: pointer;
+}
+
+.postAction:hover {
+    background: var(--bg-subtle);
+}
+
+/* Specialty Widgets */
+.statRow {
+    display: flex;
+    justify-content: space-between;
+    padding: 0.5rem 0;
+    border-bottom: 1px solid var(--border-subtle);
+}
+
+.statRow:last-child {
+    border-bottom: none;
+}
+
+.ratingStars {
+    display: flex;
+    color: var(--accent-primary);
+}
+
+.lastSwap {
+    background: var(--bg-subtle);
+    padding: 0.75rem;
+    border-radius: var(--radius-md);
+    margin-top: 0.5rem;
+    display: flex;
+    align-items: center;
+    gap: 0.75rem;
+}

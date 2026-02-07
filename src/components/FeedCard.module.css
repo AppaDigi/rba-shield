@@ -1,0 +1,153 @@
+/* FeedCard.module.css - Premium Content */
+
+.card {
+    background: var(--bg-card);
+    border: 1px solid var(--border-subtle);
+    border-radius: var(--radius-lg);
+    overflow: hidden;
+    margin-bottom: 2rem;
+    box-shadow: var(--shadow-md);
+    transition: transform 0.2s ease, box-shadow 0.2s ease;
+}
+
+.card:hover {
+    border-color: var(--border-highlight);
+    box-shadow: var(--shadow-lg);
+    transform: translateY(-2px);
+}
+
+/* Header */
+.header {
+    padding: 1rem;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+}
+
+.userInfo {
+    display: flex;
+    align-items: center;
+    gap: 0.75rem;
+}
+
+.avatar {
+    width: 44px;
+    height: 44px;
+    border-radius: 50%;
+    object-fit: cover;
+    border: 2px solid var(--bg-card);
+    box-shadow: 0 0 0 1px var(--border-subtle);
+    cursor: pointer;
+}
+
+.meta {
+    display: flex;
+    flex-direction: column;
+}
+
+.userName {
+    font-weight: 700;
+    font-size: 0.95rem;
+    color: var(--text-primary);
+    display: flex;
+    align-items: center;
+    gap: 0.25rem;
+    cursor: pointer;
+}
+
+.verified {
+    color: var(--accent-primary);
+}
+
+.time {
+    font-size: 0.75rem;
+    color: var(--text-secondary);
+}
+
+.moreBtn {
+    background: transparent;
+    color: var(--text-secondary);
+    padding: 0.5rem;
+    border-radius: 50%;
+    cursor: pointer;
+    transition: background 0.2s;
+}
+
+.moreBtn:hover {
+    background: var(--bg-subtle);
+    color: var(--text-primary);
+}
+
+/* Content */
+.text {
+    padding: 0 1rem 1rem;
+    color: var(--text-primary);
+    line-height: 1.5;
+    font-size: 0.95rem;
+}
+
+.imageWrapper {
+    width: 100%;
+    position: relative;
+    background: #000;
+}
+
+.postImage {
+    width: 100%;
+    height: auto;
+    display: block;
+    max-height: 600px;
+    object-fit: cover;
+}
+
+/* Actions Bar */
+.actions {
+    padding: 0.75rem 1rem;
+    display: flex;
+    justify-content: space-between;
+    border-top: 1px solid var(--border-subtle);
+}
+
+.actionGroup {
+    display: flex;
+    gap: 1.5rem;
+}
+
+.actionBtn {
+    background: transparent;
+    color: var(--text-secondary);
+    display: flex;
+    align-items: center;
+    gap: 0.4rem;
+    font-size: 0.9rem;
+    font-weight: 600;
+    cursor: pointer;
+    transition: color 0.2s;
+}
+
+.actionBtn:hover {
+    color: var(--text-primary);
+}
+
+.likeBtn:hover {
+    color: #ff3b30;
+}
+
+.commentBtn:hover {
+    color: var(--accent-primary);
+}
+
+/* Social Count Overlay (Optional, if we want detailed stats) */
+.stats {
+    padding: 0.75rem 1rem 0;
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+    font-size: 0.85rem;
+    color: var(--text-secondary);
+}
+
+.likedBy {
+    font-weight: 600;
+    color: var(--text-primary);
+}
