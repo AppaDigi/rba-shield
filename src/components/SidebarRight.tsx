@@ -1,9 +1,38 @@
 "use client";
 
+import { useEffect, useState } from "react";
+import { useSession } from "next-auth/react";
+import { useRouter } from "next/navigation";
 import styles from "./Sidebar.module.css";
-import Image from "next/image";
+import UserCard from "./UserCard";
+import { Users, Loader2 } from "lucide-react";
+
+interface Suggestion {
+    id: string;
+    username: string;
+    name: string | null;
+    avatar: string | null;
+    xp: number;
+    _count: { followers: number };
+}
 
 export default function SidebarRight() {
+    const { data: session } = useSession();
+    const [suggestions, setSuggestions] = useState<Suggestion[]>([]);
+    const [loading, setLoading] = useState(false);
+
+    useEffect(() => {
+        if (!session?.user?.id) return;
+        setLoading(true);
+        fetch(`/api/social/connections/${session.user.id}?type=suggestions`)
+            .then((r) => r.json())
+            .then((data) => {
+                setSuggestions(Array.isArray(data) ? data : []);
+                setLoading(false);
+            })
+            .catch(() => setLoading(false));
+    }, [session?.user?.id]);
+
     return (
         <aside className={styles.sidebarContainer}>
             {/* Trends Section */}
@@ -19,25 +48,32 @@ export default function SidebarRight() {
                 <div className={styles.trendMeta}>Current Bid: $1250 • Ends in 2h</div>
             </div>
 
-            {/* Online Lounge */}
-            <div className={styles.sectionTitle}>In The Lounge (12)</div>
-
-            <div className={styles.friendList}>
-                {[0, 1, 2, 3, 4, 5].map((i) => (
-                    <div key={i} className={styles.friendItem}>
-                        <div className={styles.avatar}>
-                            <img src={`https://i.pravatar.cc/100?u=${i + 10}`} className="w-9 h-9 rounded-full object-cover border border-[#3E3228]" />
-                            <div className="absolute bottom-0 right-0 w-2.5 h-2.5 bg-green-500 rounded-full border-2 border-[#1A120B]"></div>
-                        </div>
-                        <div>
-                            <div className={styles.friendName}>{["Winston C.", "The Duke", "Aficionado Jane", "Baron Von Smoke", "Lady Leaf", "Gentleman Jack"][i]}</div>
-                            <div className="text-[10px] text-green-400 font-medium">Smoking: Cohiba BHK</div>
-                        </div>
+            {/* People You May Know */}
+            {session?.user && (
+                <>
+                    <div className={styles.sectionTitle} style={{ marginTop: "1.5rem" }}>
+                        <Users size={14} style={{ display: "inline", marginRight: "0.4rem" }} />
+                        People You May Know
                     </div>
-                ))}
-            </div>
+                    {loading ? (
+                        <div style={{ display: "flex", justifyContent: "center", padding: "1rem" }}>
+                            <Loader2 size={18} style={{ animation: "spin 0.8s linear infinite", color: "var(--text-dim)" }} />
+                        </div>
+                    ) : suggestions.length > 0 ? (
+                        <div className={styles.suggestionList}>
+                            {suggestions.map((user) => (
+                                <UserCard key={user.id} user={user} showFollow />
+                            ))}
+                        </div>
+                    ) : (
+                        <p style={{ fontSize: "0.8rem", color: "var(--text-dim)", padding: "0.5rem 0.75rem" }}>
+                            No suggestions right now. Explore The Lounge!
+                        </p>
+                    )}
+                </>
+            )}
 
-            {/* Upcoming Event Snippet */}
+            {/* Upcoming Event */}
             <div className="mt-8 px-4">
                 <div className="bg-[#2C241B] p-4 rounded-lg border border-[#3E3228]">
                     <h4 className="text-white font-bold text-sm mb-1">Cigar Rolling Live</h4>
