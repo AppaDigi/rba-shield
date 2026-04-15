@@ -7,6 +7,8 @@ import { motion, AnimatePresence } from "framer-motion";
 import { useSession } from "next-auth/react";
 import Link from "next/link";
 import { formatDistanceToNow } from "date-fns";
+import { useMentionSearch } from "@/lib/useMentionSearch";
+import MentionDropdown from "./MentionDropdown";
 
 interface Author {
     id: string;
@@ -58,6 +60,7 @@ export default function FeedCard({ post, onDelete }: FeedCardProps) {
     const commentInputRef = useRef<HTMLInputElement>(null);
 
     const isOwner = session?.user?.id === post.author.id;
+    const mention = useMentionSearch();
 
     async function toggleLike() {
         if (!session) return;
@@ -283,15 +286,74 @@ export default function FeedCard({ post, onDelete }: FeedCardProps) {
                                     alt="You"
                                     className={styles.commentAvatar}
                                 />
-                                <input
-                                    ref={commentInputRef}
-                                    className={styles.commentInput}
-                                    placeholder="Write a comment..."
-                                    value={commentText}
-                                    onChange={(e) => setCommentText(e.target.value)}
-                                    maxLength={500}
-                                    disabled={submitting}
-                                />
+                                <div style={{ position: "relative", flex: 1 }}>
+                                    <input
+                                        ref={commentInputRef}
+                                        className={styles.commentInput}
+                                        placeholder="Write a comment..."
+                                        value={commentText}
+                                        onChange={(e) => {
+                                            setCommentText(e.target.value);
+                                            mention.detect(e.target.value, e.target.selectionStart ?? e.target.value.length);
+                                        }}
+                                        onKeyDown={(e) => {
+                                            if (mention.open) {
+                                                if (e.key === "ArrowDown") {
+                                                    e.preventDefault();
+                                                    mention.setSelectedIndex((i) => Math.min(i + 1, mention.results.length - 1));
+                                                    return;
+                                                }
+                                                if (e.key === "ArrowUp") {
+                                                    e.preventDefault();
+                                                    mention.setSelectedIndex((i) => Math.max(i - 1, 0));
+                                                    return;
+                                                }
+                                                if (e.key === "Enter" || e.key === "Tab") {
+                                                    e.preventDefault();
+                                                    const user = mention.results[mention.selectedIndex];
+                                                    if (user && mention.query !== null) {
+                                                        const { newValue, newCursor } = mention.insert(commentText, user.username, mention.query, mention.mentionStart);
+                                                        setCommentText(newValue);
+                                                        mention.dismiss();
+                                                        setTimeout(() => {
+                                                            if (commentInputRef.current) {
+                                                                commentInputRef.current.selectionStart = newCursor;
+                                                                commentInputRef.current.selectionEnd = newCursor;
+                                                            }
+                                                        }, 0);
+                                                    }
+                                                    return;
+                                                }
+                                                if (e.key === "Escape") {
+                                                    mention.dismiss();
+                                                    return;
+                                                }
+                                            }
+                                        }}
+                                        maxLength={500}
+                                        disabled={submitting}
+                                    />
+                                    <MentionDropdown
+                                        open={mention.open}
+                                        results={mention.results}
+                                        selectedIndex={mention.selectedIndex}
+                                        onSelect={(user) => {
+                                            if (mention.query !== null) {
+                                                const { newValue, newCursor } = mention.insert(commentText, user.username, mention.query, mention.mentionStart);
+                                                setCommentText(newValue);
+                                                mention.dismiss();
+                                                setTimeout(() => {
+                                                    if (commentInputRef.current) {
+                                                        commentInputRef.current.selectionStart = newCursor;
+                                                        commentInputRef.current.selectionEnd = newCursor;
+                                                        commentInputRef.current.focus();
+                                                    }
+                                                }, 0);
+                                            }
+                                        }}
+                                        onDismiss={mention.dismiss}
+                                    />
+                                </div>
                                 <button
                                     type="submit"
                                     className={styles.commentSubmit}

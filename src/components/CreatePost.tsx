@@ -6,6 +6,8 @@ import { Image as ImageIcon, X, Plus, Loader2 } from "lucide-react";
 import { motion, AnimatePresence } from "framer-motion";
 import styles from "./CreatePost.module.css";
 import type { FeedPost } from "./FeedCard";
+import { useMentionSearch } from "@/lib/useMentionSearch";
+import MentionDropdown from "./MentionDropdown";
 
 interface CreatePostProps {
     onPostCreated: (post: FeedPost) => void;
@@ -20,6 +22,8 @@ export default function CreatePost({ onPostCreated }: CreatePostProps) {
     const [submitting, setSubmitting] = useState(false);
     const fileInputRef = useRef<HTMLInputElement>(null);
     const textareaRef = useRef<HTMLTextAreaElement>(null);
+
+    const mention = useMentionSearch();
 
     if (!session) return null;
 
@@ -96,15 +100,66 @@ export default function CreatePost({ onPostCreated }: CreatePostProps) {
                     </div>
                 ) : (
                     <>
+                        <div style={{ position: "relative" }}>
                         <textarea
                             ref={textareaRef}
                             className={styles.textarea}
                             placeholder="Share your latest smoke... Try tagging someone with @username"
                             value={content}
-                            onChange={(e) => setContent(e.target.value)}
+                            onChange={(e) => {
+                                setContent(e.target.value);
+                                mention.detect(e.target.value, e.target.selectionStart ?? e.target.value.length);
+                            }}
+                            onKeyDown={(e) => {
+                                if (!mention.open) return;
+                                if (e.key === "ArrowDown") {
+                                    e.preventDefault();
+                                    mention.setSelectedIndex((i) => Math.min(i + 1, mention.results.length - 1));
+                                } else if (e.key === "ArrowUp") {
+                                    e.preventDefault();
+                                    mention.setSelectedIndex((i) => Math.max(i - 1, 0));
+                                } else if (e.key === "Enter" || e.key === "Tab") {
+                                    e.preventDefault();
+                                    const user = mention.results[mention.selectedIndex];
+                                    if (user && mention.query !== null) {
+                                        const { newValue, newCursor } = mention.insert(content, user.username, mention.query, mention.mentionStart);
+                                        setContent(newValue);
+                                        mention.dismiss();
+                                        setTimeout(() => {
+                                            if (textareaRef.current) {
+                                                textareaRef.current.selectionStart = newCursor;
+                                                textareaRef.current.selectionEnd = newCursor;
+                                            }
+                                        }, 0);
+                                    }
+                                } else if (e.key === "Escape") {
+                                    mention.dismiss();
+                                }
+                            }}
                             maxLength={2000}
                             rows={3}
                         />
+                        <MentionDropdown
+                            open={mention.open}
+                            results={mention.results}
+                            selectedIndex={mention.selectedIndex}
+                            onSelect={(user) => {
+                                if (mention.query !== null) {
+                                    const { newValue, newCursor } = mention.insert(content, user.username, mention.query, mention.mentionStart);
+                                    setContent(newValue);
+                                    mention.dismiss();
+                                    setTimeout(() => {
+                                        if (textareaRef.current) {
+                                            textareaRef.current.selectionStart = newCursor;
+                                            textareaRef.current.selectionEnd = newCursor;
+                                            textareaRef.current.focus();
+                                        }
+                                    }, 0);
+                                }
+                            }}
+                            onDismiss={mention.dismiss}
+                        />
+                        </div>
 
                         {/* Media Previews */}
                         <AnimatePresence>

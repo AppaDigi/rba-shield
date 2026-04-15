@@ -98,7 +98,7 @@ export default function SidebarLeft() {
                         <h4 className="text-gold font-bold text-sm">Connoisseur Pro</h4>
                     </div>
                     <p className="text-gray-400 text-xs mb-3">Upgrade to access exclusive auctions and verified trading.</p>
-                    <Link href="/upgrade" className="block w-full bg-gold text-black text-xs font-bold py-2 rounded text-center no-underline">
+                    <Link href="/upgrade" className="block w-full bg-gold text-black text-xs font-bold py-3 px-4 rounded text-center no-underline">
                         View Plans
                     </Link>
                 </div>
