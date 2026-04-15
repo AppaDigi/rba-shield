@@ -91,16 +91,18 @@ export default function SidebarLeft() {
                 </button>
             ) : null}
 
-            <Link href="/upgrade" className="mt-8 mx-6 block">
-                <div className="bg-[#1A120B] p-4 rounded-lg border border-[#3E3228] hover:border-[#D4AF37] transition-colors">
-                    <div className="flex items-center gap-2 mb-1">
+            <div className="mt-8 px-6">
+                <div className="bg-[#1A120B] p-4 rounded-lg border border-[#3E3228]">
+                    <div className="flex items-center gap-2 mb-2">
                         <Crown size={14} className="text-gold" />
                         <h4 className="text-gold font-bold text-sm">Connoisseur Pro</h4>
                     </div>
                     <p className="text-gray-400 text-xs mb-3">Upgrade to access exclusive auctions and verified trading.</p>
-                    <div className="w-full bg-gold text-black text-xs font-bold py-2 rounded text-center">View Plans</div>
+                    <Link href="/upgrade" className="block w-full bg-gold text-black text-xs font-bold py-2 rounded text-center no-underline">
+                        View Plans
+                    </Link>
                 </div>
-            </Link>
+            </div>
         </nav>
     );
 }
