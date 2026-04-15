@@ -90,24 +90,27 @@ export default function GroupPage({ params }: { params: Promise<{ id: string }> 
                             <input type="text" placeholder={`Discuss in ${group.name}...`} className={styles.postInput} />
                         </div>
 
-                        <FeedCard
-                            avatar="https://i.pravatar.cc/150?u=admin"
-                            name="Club Admin"
-                            time="Pinned Post"
-                            text={`Welcome to ${group.name}. Please review the pinned rules regarding trading and civil discourse. Enjoy your stay.`}
-                            likes={450}
-                            comments={120}
-                        />
+                        <FeedCard post={{
+                            id: `group-${groupId}-pinned`,
+                            content: `Welcome to ${group.name}. Please review the pinned rules regarding trading and civil discourse. Enjoy your stay.`,
+                            mediaUrls: [],
+                            createdAt: new Date(Date.now() - 1000 * 60 * 60 * 24 * 7).toISOString(),
+                            author: { id: "admin", name: "Club Admin", username: "club_admin", avatar: "https://i.pravatar.cc/150?u=admin", xp: 9999 },
+                            likeCount: 450,
+                            commentCount: 120,
+                            likedByMe: false,
+                        }} />
 
-                        <FeedCard
-                            avatar="https://i.pravatar.cc/150?u=member1"
-                            name="Sir Winston"
-                            time="2h ago"
-                            text="Tonight's pairing: A 1998 Cohiba Lancero with a glass of 25-year-old Macallan. Simply exquisite."
-                            image="https://images.unsplash.com/photo-1577908993883-fa4c0d087799?w=800"
-                            likes={89}
-                            comments={24}
-                        />
+                        <FeedCard post={{
+                            id: `group-${groupId}-post1`,
+                            content: "Tonight's pairing: A 1998 Cohiba Lancero with a glass of 25-year-old Macallan. Simply exquisite.",
+                            mediaUrls: ["https://images.unsplash.com/photo-1577908993883-fa4c0d087799?w=800"],
+                            createdAt: new Date(Date.now() - 1000 * 60 * 60 * 2).toISOString(),
+                            author: { id: "member1", name: "Sir Winston", username: "sir_winston", avatar: "https://i.pravatar.cc/150?u=member1", xp: 1200 },
+                            likeCount: 89,
+                            commentCount: 24,
+                            likedByMe: false,
+                        }} />
                     </div>
 
                     {/* Right Sidebar */}

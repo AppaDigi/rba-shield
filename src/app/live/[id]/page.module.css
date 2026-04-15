@@ -1,0 +1,127 @@
+.container {
+    display: flex;
+    flex-direction: column;
+    min-height: 100vh;
+    background: var(--bg-app);
+    color: var(--text-primary);
+}
+
+@media (min-width: 1024px) {
+    .container {
+        flex-direction: row;
+        height: 100vh;
+        overflow: hidden;
+    }
+}
+
+/* Main left column */
+.mainCol {
+    flex: 1;
+    display: flex;
+    flex-direction: column;
+    overflow-y: auto;
+    min-width: 0;
+}
+
+/* Info bar below video */
+.infoBar {
+    padding: 1.25rem 1.5rem;
+    border-bottom: 1px solid var(--border-subtle);
+    background: var(--bg-card);
+}
+
+.infoLeft {
+    display: flex;
+    flex-direction: column;
+    gap: 0.4rem;
+}
+
+.title {
+    font-size: 1.2rem;
+    font-weight: 700;
+    color: var(--text-primary);
+    line-height: 1.3;
+}
+
+.host {
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+    font-size: 0.875rem;
+    color: var(--text-secondary);
+}
+
+.hostAvatar {
+    width: 1.75rem;
+    height: 1.75rem;
+    border-radius: 50%;
+    background: var(--bg-subtle);
+    border: 1px solid var(--border-subtle);
+}
+
+.desc {
+    font-size: 0.875rem;
+    color: var(--text-secondary);
+    line-height: 1.5;
+    margin-top: 0.25rem;
+}
+
+/* Mobile: auction below info bar */
+.auctionMobile {
+    display: block;
+}
+
+@media (min-width: 1024px) {
+    .auctionMobile {
+        display: none;
+    }
+}
+
+/* Right rail (desktop only) */
+.rightRail {
+    display: none;
+}
+
+@media (min-width: 1024px) {
+    .rightRail {
+        display: flex;
+        flex-direction: column;
+        width: 340px;
+        flex-shrink: 0;
+        height: 100vh;
+        border-left: 1px solid var(--border-subtle);
+        overflow: hidden;
+    }
+}
+
+.auctionDesktop {
+    flex-shrink: 0;
+    overflow-y: auto;
+    max-height: 55vh;
+    border-bottom: 1px solid var(--border-subtle);
+}
+
+.chatWrapper {
+    flex: 1;
+    overflow: hidden;
+    display: flex;
+    flex-direction: column;
+}
+
+/* Loading state */
+.loading {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    min-height: 50vh;
+    color: var(--text-secondary);
+}
+
+.spinner {
+    animation: spin 0.7s linear infinite;
+    color: var(--accent-primary);
+}
+
+@keyframes spin {
+    to { transform: rotate(360deg); }
+}
