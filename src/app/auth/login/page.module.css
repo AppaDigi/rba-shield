@@ -97,6 +97,11 @@
   color: var(--text-primary);
 }
 
+.googleBtn:disabled {
+  opacity: 0.6;
+  cursor: not-allowed;
+}
+
 .googleBtn:hover:not(:disabled) {
   border-color: var(--accent-muted);
   background: rgba(212, 175, 55, 0.05);
