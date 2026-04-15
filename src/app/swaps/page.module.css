@@ -165,6 +165,10 @@
     gap: 0.3rem;
 }
 
+.hiddenInput {
+    display: none;
+}
+
 .formField:last-child {
     grid-column: 1 / -1;
 }
@@ -192,6 +196,16 @@
 .input:focus { border-color: var(--accent-primary); }
 .input::placeholder { color: var(--text-secondary); }
 
+.fieldHint {
+    font-size: 0.75rem;
+    color: var(--text-dim);
+}
+
+.fieldError {
+    font-size: 0.75rem;
+    color: #f87171;
+}
+
 .textarea {
     background: var(--bg-subtle);
     border: 1px solid var(--border-subtle);
@@ -207,6 +221,67 @@
 
 .textarea:focus { border-color: var(--accent-primary); }
 .textarea::placeholder { color: var(--text-secondary); }
+
+.imageUploadBtn,
+.imageActionBtn {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.45rem;
+    width: fit-content;
+    background: var(--bg-subtle);
+    border: 1px dashed var(--border-highlight);
+    color: var(--text-primary);
+    border-radius: var(--radius-sm);
+    padding: 0.65rem 0.85rem;
+    font-size: 0.85rem;
+    font-weight: 600;
+    cursor: pointer;
+    transition: border-color 0.2s, background 0.2s;
+}
+
+.imageUploadBtn:hover,
+.imageActionBtn:hover {
+    border-color: var(--accent-primary);
+    background: rgba(212, 175, 55, 0.06);
+}
+
+.imageUploadCard {
+    display: flex;
+    align-items: center;
+    gap: 0.75rem;
+    background: var(--bg-subtle);
+    border: 1px solid var(--border-subtle);
+    border-radius: var(--radius-md);
+    padding: 0.75rem;
+}
+
+.imagePreview {
+    width: 72px;
+    height: 72px;
+    border-radius: var(--radius-sm);
+    object-fit: cover;
+    border: 1px solid var(--border-highlight);
+    flex-shrink: 0;
+}
+
+.imageUploadMeta {
+    display: flex;
+    flex-direction: column;
+    gap: 0.2rem;
+    min-width: 0;
+    flex: 1;
+}
+
+.imageUploadTitle {
+    font-size: 0.85rem;
+    font-weight: 700;
+    color: var(--text-primary);
+}
+
+.imageUploadHint {
+    font-size: 0.75rem;
+    color: var(--text-secondary);
+}
 
 .createFormFooter {
     padding: 0.75rem 1rem;

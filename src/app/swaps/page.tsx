@@ -1,10 +1,10 @@
 "use client";
 
-import { useState, useEffect, useCallback } from "react";
+import { useState, useEffect, useCallback, useRef } from "react";
 import DesktopLayout from "@/components/DesktopLayout";
 import Navbar from "@/components/Navbar";
 import SwapCard, { type SwapListingData } from "@/components/SwapCard";
-import { ArrowLeftRight, Plus, BookOpen, Loader2, X } from "lucide-react";
+import { ArrowLeftRight, Plus, BookOpen, Loader2, X, ImagePlus, Trash2 } from "lucide-react";
 import styles from "./page.module.css";
 import { motion, AnimatePresence } from "framer-motion";
 import { useSession } from "next-auth/react";
@@ -14,6 +14,7 @@ type FilterTab = "all" | "mine" | "incoming";
 
 export default function SwapsPage() {
     const { data: session } = useSession();
+    const imageInputRef = useRef<HTMLInputElement>(null);
     const [filter, setFilter] = useState<FilterTab>("all");
     const [listings, setListings] = useState<SwapListingData[]>([]);
     const [cursor, setCursor] = useState<string | null>(null);
@@ -27,6 +28,7 @@ export default function SwapsPage() {
     const [offeringImage, setOfferingImage] = useState("");
     const [wantDescription, setWantDescription] = useState("");
     const [listingMessage, setListingMessage] = useState("");
+    const [imageError, setImageError] = useState("");
     const [creating, setCreating] = useState(false);
 
     const fetchListings = useCallback(async (tab: FilterTab, cursorId?: string) => {
@@ -78,11 +80,45 @@ export default function SwapsPage() {
                 const newListing: SwapListingData = await res.json();
                 setListings(prev => [newListing, ...prev]);
                 setShowCreate(false);
-                setOfferingName(""); setOfferingImage(""); setWantDescription(""); setListingMessage("");
+                setOfferingName(""); setOfferingImage(""); setWantDescription(""); setListingMessage(""); setImageError("");
             }
         } finally {
             setCreating(false);
         }
+    }
+
+    function handleImageUpload(e: React.ChangeEvent<HTMLInputElement>) {
+        const file = e.target.files?.[0];
+        if (!file) return;
+
+        if (!["image/jpeg", "image/png", "image/webp"].includes(file.type)) {
+            setImageError("Use a PNG, JPG, or WebP image.");
+            e.target.value = "";
+            return;
+        }
+
+        if (file.size > 2 * 1024 * 1024) {
+            setImageError("Image must be under 2MB.");
+            e.target.value = "";
+            return;
+        }
+
+        const reader = new FileReader();
+        reader.onload = (event) => {
+            const result = event.target?.result;
+            if (typeof result === "string") {
+                setOfferingImage(result);
+                setImageError("");
+            }
+        };
+        reader.readAsDataURL(file);
+        e.target.value = "";
+    }
+
+    function clearListingImage() {
+        setOfferingImage("");
+        setImageError("");
+        if (imageInputRef.current) imageInputRef.current.value = "";
     }
 
     return (
@@ -154,9 +190,47 @@ export default function SwapsPage() {
                                         value={wantDescription} onChange={e => setWantDescription(e.target.value)} required maxLength={200} />
                                 </div>
                                 <div className={styles.formField}>
-                                    <label className={styles.label}>Image URL (optional)</label>
-                                    <input className={styles.input} placeholder="https://..."
-                                        value={offeringImage} onChange={e => setOfferingImage(e.target.value)} />
+                                    <label className={styles.label}>Photo (optional)</label>
+                                    <input
+                                        ref={imageInputRef}
+                                        type="file"
+                                        accept="image/png,image/jpeg,image/webp"
+                                        className={styles.hiddenInput}
+                                        onChange={handleImageUpload}
+                                    />
+                                    {offeringImage ? (
+                                        <div className={styles.imageUploadCard}>
+                                            <img src={offeringImage} alt="Listing preview" className={styles.imagePreview} />
+                                            <div className={styles.imageUploadMeta}>
+                                                <span className={styles.imageUploadTitle}>Listing photo attached</span>
+                                                <span className={styles.imageUploadHint}>Stored with your listing</span>
+                                            </div>
+                                            <button type="button" className={styles.imageActionBtn} onClick={clearListingImage}>
+                                                <Trash2 size={14} />
+                                                Remove
+                                            </button>
+                                        </div>
+                                    ) : (
+                                        <button
+                                            type="button"
+                                            className={styles.imageUploadBtn}
+                                            onClick={() => imageInputRef.current?.click()}
+                                        >
+                                            <ImagePlus size={16} />
+                                            Upload Photo
+                                        </button>
+                                    )}
+                                    <input
+                                        className={styles.input}
+                                        placeholder="Or paste an image URL"
+                                        value={offeringImage.startsWith("data:image/") ? "" : offeringImage}
+                                        onChange={e => {
+                                            setOfferingImage(e.target.value);
+                                            setImageError("");
+                                        }}
+                                    />
+                                    <span className={styles.fieldHint}>PNG, JPG, or WebP up to 2MB.</span>
+                                    {imageError && <span className={styles.fieldError}>{imageError}</span>}
                                 </div>
                                 <div className={styles.formField}>
                                     <label className={styles.label}>Additional Notes</label>
