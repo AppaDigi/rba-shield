@@ -1,7 +1,7 @@
 "use client";
 
 import styles from "./Sidebar.module.css";
-import { Home, User, Users, Compass, Zap, Gavel, Settings, Inbox, LogIn, LogOut } from "lucide-react";
+import { Home, User, Users, Compass, Zap, Gavel, Settings, Inbox, LogIn, LogOut, Crown } from "lucide-react";
 import Link from "next/link";
 import { usePathname } from "next/navigation";
 import { useSession, signOut } from "next-auth/react";
@@ -91,13 +91,16 @@ export default function SidebarLeft() {
                 </button>
             ) : null}
 
-            <div className="mt-8 px-6">
-                <div className="bg-[#1A120B] p-4 rounded-lg border border-[#3E3228]">
-                    <h4 className="text-gold font-bold text-sm mb-2">Connoisseur Pro</h4>
+            <Link href="/upgrade" className="mt-8 mx-6 block">
+                <div className="bg-[#1A120B] p-4 rounded-lg border border-[#3E3228] hover:border-[#D4AF37] transition-colors">
+                    <div className="flex items-center gap-2 mb-1">
+                        <Crown size={14} className="text-gold" />
+                        <h4 className="text-gold font-bold text-sm">Connoisseur Pro</h4>
+                    </div>
                     <p className="text-gray-400 text-xs mb-3">Upgrade to access exclusive auctions and verified trading.</p>
-                    <button className="w-full bg-gold text-black text-xs font-bold py-2 rounded">Upgrade Plan</button>
+                    <div className="w-full bg-gold text-black text-xs font-bold py-2 rounded text-center">View Plans</div>
                 </div>
-            </div>
+            </Link>
         </nav>
     );
 }
