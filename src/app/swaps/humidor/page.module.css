@@ -75,6 +75,8 @@
 
 .field { display: flex; flex-direction: column; gap: 0.3rem; }
 
+.hiddenInput { display: none; }
+
 .label {
     font-size: 0.72rem;
     font-weight: 700;
@@ -98,6 +100,16 @@
 
 .input:focus { border-color: var(--accent-primary); }
 .input::placeholder { color: var(--text-secondary); }
+
+.fieldHint {
+    font-size: 0.75rem;
+    color: var(--text-dim);
+}
+
+.fieldError {
+    font-size: 0.75rem;
+    color: #f87171;
+}
 
 .textarea {
     background: var(--bg-subtle);
@@ -132,6 +144,64 @@
 
 .cancelBtn:hover { background: var(--bg-subtle); }
 
+.secondaryBtn {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.45rem;
+    width: fit-content;
+    background: var(--bg-subtle);
+    border: 1px dashed var(--border-highlight);
+    color: var(--text-primary);
+    padding: 0.55rem 0.85rem;
+    border-radius: 20px;
+    cursor: pointer;
+    font-size: 0.82rem;
+    font-weight: 600;
+    transition: border-color 0.2s, background 0.2s;
+}
+
+.secondaryBtn:hover {
+    border-color: var(--accent-primary);
+    background: rgba(212, 175, 55, 0.06);
+}
+
+.imageUploadCard {
+    display: flex;
+    align-items: center;
+    gap: 0.75rem;
+    background: var(--bg-subtle);
+    border: 1px solid var(--border-subtle);
+    border-radius: var(--radius-md);
+    padding: 0.75rem;
+}
+
+.imagePreview {
+    width: 70px;
+    height: 70px;
+    object-fit: cover;
+    border-radius: var(--radius-sm);
+    border: 1px solid var(--border-highlight);
+    flex-shrink: 0;
+}
+
+.imageMeta {
+    display: flex;
+    flex-direction: column;
+    gap: 0.2rem;
+    flex: 1;
+}
+
+.imageTitle {
+    font-size: 0.84rem;
+    font-weight: 700;
+    color: var(--text-primary);
+}
+
+.imageHint {
+    font-size: 0.75rem;
+    color: var(--text-secondary);
+}
+
 /* Empty state */
 .empty {
     display: flex;
@@ -162,6 +232,28 @@
     gap: 1rem;
     padding: 1rem 0;
     border-bottom: 1px solid var(--border-subtle);
+}
+
+.itemImage,
+.itemImagePlaceholder {
+    width: 72px;
+    height: 72px;
+    border-radius: var(--radius-md);
+    flex-shrink: 0;
+}
+
+.itemImage {
+    object-fit: cover;
+    border: 1px solid var(--border-highlight);
+}
+
+.itemImagePlaceholder {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    background: var(--bg-subtle);
+    border: 1px dashed var(--border-subtle);
+    color: var(--text-dim);
 }
 
 .itemCard:last-child { border-bottom: none; }

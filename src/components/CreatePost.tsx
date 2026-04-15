@@ -99,7 +99,7 @@ export default function CreatePost({ onPostCreated }: CreatePostProps) {
                         <textarea
                             ref={textareaRef}
                             className={styles.textarea}
-                            placeholder="Share your latest smoke..."
+                            placeholder="Share your latest smoke... Try tagging someone with @username"
                             value={content}
                             onChange={(e) => setContent(e.target.value)}
                             maxLength={2000}

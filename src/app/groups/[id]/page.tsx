@@ -3,14 +3,27 @@
 import styles from "./page.module.css";
 import Navbar from "@/components/Navbar";
 import FeedCard from "@/components/FeedCard";
-import { Users, Calendar, Trophy, Plus, MapPin } from "lucide-react";
+import { Users, Trophy, MapPin } from "lucide-react";
 
-import { use } from "react";
+import { use, useEffect, useState } from "react";
 import DesktopLayout from "@/components/DesktopLayout";
+
+interface SocietyDetails {
+    id: string;
+    name: string;
+    description: string | null;
+    coverImage: string | null;
+    category: string;
+    _count?: { members: number; posts: number };
+}
 
 export default function GroupPage({ params }: { params: Promise<{ id: string }> }) {
     const { id } = use(params);
-    const groupId = parseInt(id);
+    const groupId = Number.parseInt(id, 10);
+    const groupKey = Number.isNaN(groupId) ? id : `${groupId}`;
+    const avatarSeedBase = Number.isNaN(groupId) ? 100 : groupId * 10;
+    const [society, setSociety] = useState<SocietyDetails | null>(null);
+    const [loadingSociety, setLoadingSociety] = useState(Number.isNaN(groupId));
 
     // Demo Data based on ID
     const GROUP_DATA = {
@@ -18,7 +31,6 @@ export default function GroupPage({ params }: { params: Promise<{ id: string }> 
             name: "The Gentry Club",
             banner: "https://images.unsplash.com/photo-1542204165-65bf26472b9b?w=1200",
             members: 12500,
-            icon: Trophy,
             desc: "An exclusive society for the modern gentleman. Focused on rare vintages and high-stakes auctions."
         },
         2: {
@@ -53,7 +65,37 @@ export default function GroupPage({ params }: { params: Promise<{ id: string }> 
         }
     };
 
-    const group = GROUP_DATA[groupId as keyof typeof GROUP_DATA] || GROUP_DATA[1];
+    useEffect(() => {
+        if (!Number.isNaN(groupId)) return;
+
+        fetch(`/api/societies/${id}`)
+            .then((res) => res.ok ? res.json() : null)
+            .then((data: SocietyDetails | null) => setSociety(data))
+            .finally(() => setLoadingSociety(false));
+    }, [groupId, id]);
+
+    const fallbackGroup = GROUP_DATA[groupId as keyof typeof GROUP_DATA] || GROUP_DATA[1];
+    const group = society
+        ? {
+              name: society.name,
+              banner: society.coverImage ?? "https://images.unsplash.com/photo-1542204165-65bf26472b9b?w=1200",
+              members: society._count?.members ?? 1,
+              desc: society.description ?? "A private society for tastings, notes, pairings, and long-form lounge conversation.",
+          }
+        : fallbackGroup;
+
+    const pinnedCreatedAt = "2026-04-08T12:00:00.000Z";
+    const samplePostCreatedAt = "2026-04-15T13:00:00.000Z";
+
+    if (loadingSociety) {
+        return (
+            <DesktopLayout>
+                <div className={styles.container}>
+                    <div className={styles.widget}>Loading society...</div>
+                </div>
+            </DesktopLayout>
+        );
+    }
 
     return (
         <DesktopLayout showRightSidebar={true}>
@@ -86,15 +128,15 @@ export default function GroupPage({ params }: { params: Promise<{ id: string }> 
                     <div className={styles.feed}>
                         {/* Create Post */}
                         <div className={styles.createPost}>
-                            <img src="https://i.pravatar.cc/150?u=kiefer" className={styles.userAvatar} />
+                            <img src="https://i.pravatar.cc/150?u=kiefer" alt="Member avatar" className={styles.userAvatar} />
                             <input type="text" placeholder={`Discuss in ${group.name}...`} className={styles.postInput} />
                         </div>
 
                         <FeedCard post={{
-                            id: `group-${groupId}-pinned`,
+                            id: `group-${groupKey}-pinned`,
                             content: `Welcome to ${group.name}. Please review the pinned rules regarding trading and civil discourse. Enjoy your stay.`,
                             mediaUrls: [],
-                            createdAt: new Date(Date.now() - 1000 * 60 * 60 * 24 * 7).toISOString(),
+                            createdAt: pinnedCreatedAt,
                             author: { id: "admin", name: "Club Admin", username: "club_admin", avatar: "https://i.pravatar.cc/150?u=admin", xp: 9999 },
                             likeCount: 450,
                             commentCount: 120,
@@ -102,10 +144,10 @@ export default function GroupPage({ params }: { params: Promise<{ id: string }> 
                         }} />
 
                         <FeedCard post={{
-                            id: `group-${groupId}-post1`,
+                            id: `group-${groupKey}-post1`,
                             content: "Tonight's pairing: A 1998 Cohiba Lancero with a glass of 25-year-old Macallan. Simply exquisite.",
                             mediaUrls: ["https://images.unsplash.com/photo-1577908993883-fa4c0d087799?w=800"],
-                            createdAt: new Date(Date.now() - 1000 * 60 * 60 * 2).toISOString(),
+                            createdAt: samplePostCreatedAt,
                             author: { id: "member1", name: "Sir Winston", username: "sir_winston", avatar: "https://i.pravatar.cc/150?u=member1", xp: 1200 },
                             likeCount: 89,
                             commentCount: 24,
@@ -135,7 +177,7 @@ export default function GroupPage({ params }: { params: Promise<{ id: string }> 
                             <div className={styles.widgetTitle}>New Members</div>
                             <div className={styles.memberList}>
                                 {[1, 2, 3, 4, 5, 6, 7, 8].map(i => (
-                                    <img key={i} src={`https://i.pravatar.cc/150?u=${i + groupId * 10}`} className={styles.memberAvatar} />
+                                    <img key={i} src={`https://i.pravatar.cc/150?u=${i + avatarSeedBase}`} alt={`New member ${i}`} className={styles.memberAvatar} />
                                 ))}
                             </div>
                         </div>

@@ -1,9 +1,9 @@
 "use client";
 
-import { useState, useEffect } from "react";
+import { useState, useEffect, useRef } from "react";
 import DesktopLayout from "@/components/DesktopLayout";
 import Navbar from "@/components/Navbar";
-import { Plus, Trash2, BookOpen, Loader2, Package } from "lucide-react";
+import { Plus, Trash2, BookOpen, Loader2, Package, ImagePlus } from "lucide-react";
 import { motion, AnimatePresence } from "framer-motion";
 import { useSession } from "next-auth/react";
 import { useRouter } from "next/navigation";
@@ -18,6 +18,7 @@ interface HumidorItem {
     origin: string | null;
     quantity: number;
     notes: string | null;
+    imageUrl: string | null;
     createdAt: string;
 }
 
@@ -26,8 +27,9 @@ const SIZE_OPTIONS = ["Robusto", "Churchill", "Toro", "Lancero", "Panatela", "Co
 const ORIGIN_OPTIONS = ["Cuba", "Nicaragua", "Dominican Republic", "Honduras", "Ecuador", "Mexico", "Peru", "USA"];
 
 export default function HumidorPage() {
-    const { data: session, status } = useSession();
+    const { status } = useSession();
     const router = useRouter();
+    const imageInputRef = useRef<HTMLInputElement>(null);
     const [items, setItems] = useState<HumidorItem[]>([]);
     const [loading, setLoading] = useState(true);
     const [showAdd, setShowAdd] = useState(false);
@@ -41,6 +43,8 @@ export default function HumidorPage() {
     const [origin, setOrigin] = useState("");
     const [quantity, setQuantity] = useState("1");
     const [notes, setNotes] = useState("");
+    const [imageUrl, setImageUrl] = useState("");
+    const [imageError, setImageError] = useState("");
 
     useEffect(() => {
         if (status === "unauthenticated") { router.push("/auth/login"); return; }
@@ -52,7 +56,8 @@ export default function HumidorPage() {
     }, [status, router]);
 
     function resetForm() {
-        setName(""); setBrand(""); setSize(""); setWrapper(""); setOrigin(""); setQuantity("1"); setNotes("");
+        setName(""); setBrand(""); setSize(""); setWrapper(""); setOrigin(""); setQuantity("1"); setNotes(""); setImageUrl(""); setImageError("");
+        if (imageInputRef.current) imageInputRef.current.value = "";
     }
 
     async function addItem(e: React.FormEvent) {
@@ -63,7 +68,7 @@ export default function HumidorPage() {
             const res = await fetch("/api/humidor", {
                 method: "POST",
                 headers: { "Content-Type": "application/json" },
-                body: JSON.stringify({ name: name.trim(), brand, size, wrapper, origin, quantity: parseInt(quantity) || 1, notes }),
+                body: JSON.stringify({ name: name.trim(), brand, size, wrapper, origin, quantity: parseInt(quantity) || 1, notes, imageUrl }),
             });
             if (res.ok) {
                 const item: HumidorItem = await res.json();
@@ -74,6 +79,31 @@ export default function HumidorPage() {
         } finally {
             setAdding(false);
         }
+    }
+
+    function handleImageUpload(e: React.ChangeEvent<HTMLInputElement>) {
+        const file = e.target.files?.[0];
+        if (!file) return;
+        if (!["image/jpeg", "image/png", "image/webp"].includes(file.type)) {
+            setImageError("Use a PNG, JPG, or WebP image.");
+            e.target.value = "";
+            return;
+        }
+        if (file.size > 2 * 1024 * 1024) {
+            setImageError("Photo must be under 2MB.");
+            e.target.value = "";
+            return;
+        }
+        const reader = new FileReader();
+        reader.onload = (ev) => {
+            const result = ev.target?.result;
+            if (typeof result === "string") {
+                setImageUrl(result);
+                setImageError("");
+            }
+        };
+        reader.readAsDataURL(file);
+        e.target.value = "";
     }
 
     async function deleteItem(id: string) {
@@ -157,6 +187,42 @@ export default function HumidorPage() {
                                     </select>
                                 </div>
                                 <div className={`${styles.field} ${styles.fullWidth}`}>
+                                    <label className={styles.label}>Photo</label>
+                                    <input
+                                        ref={imageInputRef}
+                                        type="file"
+                                        accept="image/png,image/jpeg,image/webp"
+                                        className={styles.hiddenInput}
+                                        onChange={handleImageUpload}
+                                    />
+                                    {imageUrl ? (
+                                        <div className={styles.imageUploadCard}>
+                                            <img src={imageUrl} alt="Humidor preview" className={styles.imagePreview} />
+                                            <div className={styles.imageMeta}>
+                                                <span className={styles.imageTitle}>Photo attached</span>
+                                                <span className={styles.imageHint}>This image will appear on your humidor card.</span>
+                                            </div>
+                                            <button type="button" className={styles.secondaryBtn} onClick={() => setImageUrl("")}>
+                                                <Trash2 size={14} />
+                                                Remove
+                                            </button>
+                                        </div>
+                                    ) : (
+                                        <button type="button" className={styles.secondaryBtn} onClick={() => imageInputRef.current?.click()}>
+                                            <ImagePlus size={14} />
+                                            Upload Photo
+                                        </button>
+                                    )}
+                                    <input
+                                        className={styles.input}
+                                        placeholder="Or paste an image URL"
+                                        value={imageUrl.startsWith("data:image/") ? "" : imageUrl}
+                                        onChange={(e) => { setImageUrl(e.target.value); setImageError(""); }}
+                                    />
+                                    <span className={styles.fieldHint}>PNG, JPG, or WebP up to 2MB.</span>
+                                    {imageError && <span className={styles.fieldError}>{imageError}</span>}
+                                </div>
+                                <div className={`${styles.field} ${styles.fullWidth}`}>
                                     <label className={styles.label}>Personal Notes</label>
                                     <textarea className={styles.textarea} placeholder="Year purchased, storage conditions, tasting notes..."
                                         value={notes} onChange={e => setNotes(e.target.value)} rows={2} maxLength={500} />
@@ -195,6 +261,13 @@ export default function HumidorPage() {
                                     exit={{ opacity: 0, x: -20 }}
                                     layout
                                 >
+                                    {item.imageUrl ? (
+                                        <img src={item.imageUrl} alt={item.name} className={styles.itemImage} />
+                                    ) : (
+                                        <div className={styles.itemImagePlaceholder}>
+                                            <Package size={20} />
+                                        </div>
+                                    )}
                                     <div className={styles.itemMain}>
                                         <div className={styles.itemName}>{item.name}</div>
                                         <div className={styles.itemTags}>

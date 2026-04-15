@@ -26,6 +26,21 @@ export async function GET(
             _count: {
                 select: { followers: true, following: true },
             },
+            humidorItems: {
+                orderBy: { createdAt: "desc" },
+                select: {
+                    id: true,
+                    name: true,
+                    brand: true,
+                    size: true,
+                    wrapper: true,
+                    origin: true,
+                    quantity: true,
+                    notes: true,
+                    imageUrl: true,
+                    createdAt: true,
+                },
+            },
         },
     });
 

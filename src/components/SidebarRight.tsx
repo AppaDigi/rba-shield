@@ -2,7 +2,6 @@
 
 import { useEffect, useState } from "react";
 import { useSession } from "next-auth/react";
-import { useRouter } from "next/navigation";
 import styles from "./Sidebar.module.css";
 import UserCard from "./UserCard";
 import { Users, Loader2 } from "lucide-react";
@@ -18,19 +17,26 @@ interface Suggestion {
 
 export default function SidebarRight() {
     const { data: session } = useSession();
-    const [suggestions, setSuggestions] = useState<Suggestion[]>([]);
-    const [loading, setLoading] = useState(false);
+    const [suggestions, setSuggestions] = useState<Suggestion[] | null>(null);
 
     useEffect(() => {
         if (!session?.user?.id) return;
-        setLoading(true);
+
+        let cancelled = false;
+
         fetch(`/api/social/connections/${session.user.id}?type=suggestions`)
             .then((r) => r.json())
             .then((data) => {
+                if (cancelled) return;
                 setSuggestions(Array.isArray(data) ? data : []);
-                setLoading(false);
             })
-            .catch(() => setLoading(false));
+            .catch(() => {
+                if (!cancelled) setSuggestions([]);
+            });
+
+        return () => {
+            cancelled = true;
+        };
     }, [session?.user?.id]);
 
     return (
@@ -55,7 +61,7 @@ export default function SidebarRight() {
                         <Users size={14} style={{ display: "inline", marginRight: "0.4rem" }} />
                         People You May Know
                     </div>
-                    {loading ? (
+                    {suggestions === null ? (
                         <div style={{ display: "flex", justifyContent: "center", padding: "1rem" }}>
                             <Loader2 size={18} style={{ animation: "spin 0.8s linear infinite", color: "var(--text-dim)" }} />
                         </div>
@@ -76,10 +82,10 @@ export default function SidebarRight() {
             {/* Upcoming Event */}
             <div className="mt-8 px-4">
                 <div className="bg-[#2C241B] p-4 rounded-lg border border-[#3E3228]">
-                    <h4 className="text-white font-bold text-sm mb-1">Cigar Rolling Live</h4>
-                    <p className="text-gray-400 text-xs mb-2">Join us for a masterclass with Arturo Fuente rollers.</p>
+                    <h4 className="text-white font-bold text-sm mb-1">Live Events Coming Soon</h4>
+                    <p className="text-gray-400 text-xs mb-2">We’re setting the stage for tastings, auctions, and masterclasses.</p>
                     <div className="flex items-center gap-2 text-gold text-xs font-bold">
-                        <span className="w-2 h-2 rounded-full bg-gold"></span> Starts in 45m
+                        <span className="w-2 h-2 rounded-full bg-gold"></span> Schedule drops soon
                     </div>
                 </div>
             </div>

@@ -3,13 +3,12 @@
 import styles from "./Sidebar.module.css";
 import { Home, User, Users, Compass, Zap, Gavel, Settings, Inbox, LogIn, LogOut } from "lucide-react";
 import Link from "next/link";
-import { usePathname, useRouter } from "next/navigation";
+import { usePathname } from "next/navigation";
 import { useSession, signOut } from "next-auth/react";
 import { getTier } from "@/lib/connoisseur";
 
 export default function SidebarLeft() {
     const pathname = usePathname();
-    const router = useRouter();
     const { data: session } = useSession();
 
     const navItems = [
@@ -76,9 +75,9 @@ export default function SidebarLeft() {
 
             <div className={styles.sectionTitle}>Personal</div>
             {quickLinks.map((item) => (
-                <Link key={item.href} href={item.href} className={styles.navItem}>
-                    <item.icon size={22} className="text-gray-400" />
-                    <span className="font-medium text-sm text-gray-400">{item.label}</span>
+                <Link key={item.href} href={item.href} className={`${styles.navItem} ${pathname === item.href ? styles.navItemActive : ""}`}>
+                    <item.icon size={22} />
+                    <span className="font-medium text-sm">{item.label}</span>
                 </Link>
             ))}
 

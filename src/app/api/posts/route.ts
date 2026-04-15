@@ -1,6 +1,7 @@
 import { NextRequest, NextResponse } from "next/server";
 import { prisma } from "@/lib/prisma";
 import { auth } from "@/lib/auth";
+import { createMentionNotifications } from "@/lib/mentions";
 
 // GET /api/posts?feed=latest|trending|friends&cursor=<cuid>&limit=10
 export async function GET(req: NextRequest) {
@@ -95,6 +96,12 @@ export async function POST(req: NextRequest) {
             },
             _count: { select: { likes: true, comments: true } },
         },
+    });
+
+    await createMentionNotifications({
+        actorId: session.user.id,
+        content: post.content,
+        entityUrl: `/#post-${post.id}`,
     });
 
     // Award XP for posting

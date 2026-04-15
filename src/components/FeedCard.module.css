@@ -119,6 +119,15 @@
     white-space: pre-wrap;
 }
 
+.mentionLink {
+    color: var(--accent-primary);
+    font-weight: 700;
+}
+
+.mentionLink:hover {
+    text-decoration: underline;
+}
+
 /* Media grid */
 .mediaGrid {
     width: 100%;

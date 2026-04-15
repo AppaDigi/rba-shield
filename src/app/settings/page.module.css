@@ -1,0 +1,113 @@
+.container {
+    max-width: 840px;
+    margin: 0 auto;
+    padding: 1.5rem 1rem 5rem;
+}
+
+.header {
+    display: flex;
+    align-items: flex-start;
+    justify-content: space-between;
+    gap: 1rem;
+    margin-bottom: 1.25rem;
+}
+
+.title {
+    font-size: 2rem;
+    font-weight: 800;
+    letter-spacing: -0.04em;
+}
+
+.subtitle {
+    color: var(--text-secondary);
+    font-size: 0.92rem;
+    margin-top: 0.2rem;
+}
+
+.badge {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.45rem;
+    background: rgba(212, 175, 55, 0.08);
+    border: 1px solid rgba(212, 175, 55, 0.2);
+    color: var(--accent-primary);
+    border-radius: 999px;
+    padding: 0.7rem 0.9rem;
+    font-size: 0.8rem;
+    font-weight: 800;
+}
+
+.grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(240px, 1fr));
+    gap: 0.9rem;
+}
+
+.card {
+    display: flex;
+    align-items: center;
+    gap: 0.85rem;
+    background: linear-gradient(180deg, rgba(29, 19, 11, 0.96), rgba(18, 12, 8, 0.98));
+    border: 1px solid var(--border-subtle);
+    border-radius: 22px;
+    padding: 1rem;
+    transition: transform 0.2s, border-color 0.2s;
+}
+
+.card:hover {
+    transform: translateY(-1px);
+    border-color: var(--border-highlight);
+}
+
+.cardIcon {
+    width: 2.7rem;
+    height: 2.7rem;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    border-radius: 16px;
+    background: rgba(212, 175, 55, 0.08);
+    color: var(--accent-primary);
+    flex-shrink: 0;
+}
+
+.cardCopy {
+    flex: 1;
+}
+
+.cardTitle {
+    font-size: 0.98rem;
+    font-weight: 700;
+    color: var(--text-primary);
+}
+
+.cardDesc {
+    font-size: 0.82rem;
+    color: var(--text-secondary);
+    line-height: 1.45;
+    margin-top: 0.25rem;
+}
+
+.chevron {
+    color: var(--text-dim);
+}
+
+.signOutBtn {
+    margin-top: 1rem;
+    display: inline-flex;
+    align-items: center;
+    gap: 0.5rem;
+    background: transparent;
+    border: 1px solid rgba(248, 113, 113, 0.24);
+    color: #fca5a5;
+    border-radius: 999px;
+    padding: 0.8rem 1rem;
+    font-weight: 700;
+}
+
+@media (max-width: 640px) {
+    .header {
+        flex-direction: column;
+        align-items: stretch;
+    }
+}

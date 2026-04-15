@@ -1,13 +1,13 @@
 "use client";
 
-import { useEffect, useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import { useParams, useRouter } from "next/navigation";
 import { useSession } from "next-auth/react";
 import { motion } from "framer-motion";
 import Link from "next/link";
 import {
     MapPin, Calendar, Edit3, UserPlus,
-    Flame, Award, Star, TrendingUp, Users, MessageSquare, Loader2,
+    Flame, Award, Star, TrendingUp, Users, MessageSquare, Loader2, Plus, Package, ImagePlus, Trash2,
 } from "lucide-react";
 import { getTier, getLevelProgress } from "@/lib/connoisseur";
 import FollowButton from "@/components/FollowButton";
@@ -27,15 +27,41 @@ interface ProfileData {
     tradeCount: number;
     createdAt: string;
     _count: { followers: number; following: number };
+    humidorItems: {
+        id: string;
+        name: string;
+        brand: string | null;
+        size: string | null;
+        wrapper: string | null;
+        origin: string | null;
+        quantity: number;
+        notes: string | null;
+        imageUrl: string | null;
+        createdAt: string;
+    }[];
 }
 
 export default function ProfilePage() {
     const { username } = useParams<{ username: string }>();
     const { data: session } = useSession();
     const router = useRouter();
+    const humidorImageInputRef = useRef<HTMLInputElement>(null);
     const [profile, setProfile] = useState<ProfileData | null>(null);
     const [notFound, setNotFound] = useState(false);
     const [activeTab, setActiveTab] = useState<"posts" | "reviews" | "humidor" | "trades">("posts");
+    const [showHumidorForm, setShowHumidorForm] = useState(false);
+    const [savingHumidorItem, setSavingHumidorItem] = useState(false);
+    const [humidorImageError, setHumidorImageError] = useState("");
+    const [humidorForm, setHumidorForm] = useState({
+        name: "",
+        brand: "",
+        size: "",
+        wrapper: "",
+        origin: "",
+        quantity: "1",
+        notes: "",
+        imageUrl: "",
+    });
 
     const isOwnProfile = session?.user?.username === username;
 
@@ -89,6 +115,90 @@ export default function ProfilePage() {
         { key: "humidor", label: "Humidor" },
         { key: "trades", label: "Trades" },
     ] as const;
+
+    function updateHumidorForm(field: keyof typeof humidorForm, value: string) {
+        setHumidorForm((current) => ({ ...current, [field]: value }));
+    }
+
+    function resetHumidorForm() {
+        setHumidorForm({
+            name: "",
+            brand: "",
+            size: "",
+            wrapper: "",
+            origin: "",
+            quantity: "1",
+            notes: "",
+            imageUrl: "",
+        });
+        setHumidorImageError("");
+        if (humidorImageInputRef.current) humidorImageInputRef.current.value = "";
+    }
+
+    function handleHumidorPhotoUpload(e: React.ChangeEvent<HTMLInputElement>) {
+        const file = e.target.files?.[0];
+        if (!file) return;
+
+        if (!["image/jpeg", "image/png", "image/webp"].includes(file.type)) {
+            setHumidorImageError("Use a PNG, JPG, or WebP image.");
+            e.target.value = "";
+            return;
+        }
+
+        if (file.size > 2 * 1024 * 1024) {
+            setHumidorImageError("Photo must be under 2MB.");
+            e.target.value = "";
+            return;
+        }
+
+        const reader = new FileReader();
+        reader.onload = (ev) => {
+            const result = ev.target?.result;
+            if (typeof result === "string") {
+                updateHumidorForm("imageUrl", result);
+                setHumidorImageError("");
+            }
+        };
+        reader.readAsDataURL(file);
+        e.target.value = "";
+    }
+
+    async function addHumidorItem(e: React.FormEvent) {
+        e.preventDefault();
+        if (!humidorForm.name.trim() || savingHumidorItem || !isOwnProfile) return;
+
+        setSavingHumidorItem(true);
+
+        try {
+            const res = await fetch("/api/humidor", {
+                method: "POST",
+                headers: { "Content-Type": "application/json" },
+                body: JSON.stringify({
+                    name: humidorForm.name.trim(),
+                    brand: humidorForm.brand,
+                    size: humidorForm.size,
+                    wrapper: humidorForm.wrapper,
+                    origin: humidorForm.origin,
+                    quantity: parseInt(humidorForm.quantity, 10) || 1,
+                    notes: humidorForm.notes,
+                    imageUrl: humidorForm.imageUrl,
+                }),
+            });
+
+            if (!res.ok) return;
+
+            const item = await res.json();
+            setProfile((current) => current ? {
+                ...current,
+                humidorItems: [item, ...current.humidorItems],
+                cigarsLogged: current.cigarsLogged + item.quantity,
+            } : current);
+            resetHumidorForm();
+            setShowHumidorForm(false);
+        } finally {
+            setSavingHumidorItem(false);
+        }
+    }
 
     return (
         <DesktopLayout>
@@ -240,10 +350,144 @@ export default function ProfilePage() {
                             </div>
                         )}
                         {activeTab === "humidor" && (
-                            <div className={styles.emptyState}>
-                                <Flame size={40} />
-                                <h3>Humidor is empty</h3>
-                                <p>Log cigars to build your collection</p>
+                            <div className={styles.humidorSection}>
+                                <div className={styles.humidorHeader}>
+                                    <div>
+                                        <h3 className={styles.sectionHeading}>Humidor Collection</h3>
+                                        <p className={styles.sectionCopy}>
+                                            {profile.humidorItems.length === 0
+                                                ? "No cigars logged yet."
+                                                : `${profile.humidorItems.reduce((sum, item) => sum + item.quantity, 0)} cigars across ${profile.humidorItems.length} listing${profile.humidorItems.length === 1 ? "" : "s"}.`}
+                                        </p>
+                                    </div>
+                                    {isOwnProfile && (
+                                        <button className={styles.addHumidorBtn} onClick={() => setShowHumidorForm((value) => !value)}>
+                                            <Plus size={14} />
+                                            Add Cigar
+                                        </button>
+                                    )}
+                                </div>
+
+                                {isOwnProfile && showHumidorForm && (
+                                    <motion.form
+                                        initial={{ opacity: 0, height: 0 }}
+                                        animate={{ opacity: 1, height: "auto" }}
+                                        exit={{ opacity: 0, height: 0 }}
+                                        className={styles.humidorForm}
+                                        onSubmit={addHumidorItem}
+                                    >
+                                        <div className={styles.humidorFormGrid}>
+                                            <div className={styles.formField}>
+                                                <label className={styles.formLabel}>Cigar Name *</label>
+                                                <input className={styles.formInput} value={humidorForm.name} onChange={(e) => updateHumidorForm("name", e.target.value)} placeholder="e.g., Padrón 1964 Anniversary Maduro" required />
+                                            </div>
+                                            <div className={styles.formField}>
+                                                <label className={styles.formLabel}>Brand</label>
+                                                <input className={styles.formInput} value={humidorForm.brand} onChange={(e) => updateHumidorForm("brand", e.target.value)} placeholder="e.g., Padrón" />
+                                            </div>
+                                            <div className={styles.formField}>
+                                                <label className={styles.formLabel}>Size / Vitola</label>
+                                                <input className={styles.formInput} value={humidorForm.size} onChange={(e) => updateHumidorForm("size", e.target.value)} placeholder="e.g., Toro" />
+                                            </div>
+                                            <div className={styles.formField}>
+                                                <label className={styles.formLabel}>Quantity</label>
+                                                <input className={styles.formInput} value={humidorForm.quantity} onChange={(e) => updateHumidorForm("quantity", e.target.value)} type="number" min="1" max="500" />
+                                            </div>
+                                            <div className={styles.formField}>
+                                                <label className={styles.formLabel}>Wrapper</label>
+                                                <input className={styles.formInput} value={humidorForm.wrapper} onChange={(e) => updateHumidorForm("wrapper", e.target.value)} placeholder="e.g., Maduro" />
+                                            </div>
+                                            <div className={styles.formField}>
+                                                <label className={styles.formLabel}>Origin</label>
+                                                <input className={styles.formInput} value={humidorForm.origin} onChange={(e) => updateHumidorForm("origin", e.target.value)} placeholder="e.g., Nicaragua" />
+                                            </div>
+                                            <div className={styles.humidorFormFull}>
+                                                <label className={styles.formLabel}>Photo</label>
+                                                <input
+                                                    ref={humidorImageInputRef}
+                                                    type="file"
+                                                    accept="image/png,image/jpeg,image/webp"
+                                                    className={styles.hiddenInput}
+                                                    onChange={handleHumidorPhotoUpload}
+                                                />
+                                                {humidorForm.imageUrl ? (
+                                                    <div className={styles.humidorImageRow}>
+                                                        <img src={humidorForm.imageUrl} alt="Humidor preview" className={styles.humidorPreviewImage} />
+                                                        <div className={styles.humidorImageMeta}>
+                                                            <span className={styles.humidorImageTitle}>Photo attached</span>
+                                                            <span className={styles.humidorImageHint}>This image will appear in your humidor collection.</span>
+                                                        </div>
+                                                        <button type="button" className={styles.secondaryAction} onClick={() => updateHumidorForm("imageUrl", "")}>
+                                                            <Trash2 size={14} />
+                                                            Remove
+                                                        </button>
+                                                    </div>
+                                                ) : (
+                                                    <button type="button" className={styles.secondaryAction} onClick={() => humidorImageInputRef.current?.click()}>
+                                                        <ImagePlus size={14} />
+                                                        Upload Photo
+                                                    </button>
+                                                )}
+                                                <input
+                                                    className={styles.formInput}
+                                                    placeholder="Or paste an image URL"
+                                                    value={humidorForm.imageUrl.startsWith("data:image/") ? "" : humidorForm.imageUrl}
+                                                    onChange={(e) => { updateHumidorForm("imageUrl", e.target.value); setHumidorImageError(""); }}
+                                                />
+                                                <span className={styles.formHint}>PNG, JPG, or WebP up to 2MB.</span>
+                                                {humidorImageError && <span className={styles.formError}>{humidorImageError}</span>}
+                                            </div>
+                                            <div className={styles.humidorFormFull}>
+                                                <label className={styles.formLabel}>Personal Notes</label>
+                                                <textarea className={styles.formTextarea} rows={3} value={humidorForm.notes} onChange={(e) => updateHumidorForm("notes", e.target.value)} placeholder="Year purchased, storage conditions, tasting notes..." />
+                                            </div>
+                                        </div>
+                                        <div className={styles.humidorFormActions}>
+                                            <button type="button" className={styles.secondaryAction} onClick={() => { setShowHumidorForm(false); resetHumidorForm(); }}>
+                                                Cancel
+                                            </button>
+                                            <button type="submit" className={styles.addHumidorBtn} disabled={!humidorForm.name.trim() || savingHumidorItem}>
+                                                {savingHumidorItem ? <Loader2 size={14} className={styles.spinner} /> : <Plus size={14} />}
+                                                Add to Humidor
+                                            </button>
+                                        </div>
+                                    </motion.form>
+                                )}
+
+                                {profile.humidorItems.length === 0 ? (
+                                    <div className={styles.emptyState}>
+                                        <Package size={40} />
+                                        <h3>Humidor is empty</h3>
+                                        <p>{isOwnProfile ? "Add cigars with photos to build your collection." : "No cigars have been shared yet."}</p>
+                                    </div>
+                                ) : (
+                                    <div className={styles.humidorGrid}>
+                                        {profile.humidorItems.map((item) => (
+                                            <div key={item.id} className={styles.humidorCard}>
+                                                {item.imageUrl ? (
+                                                    <img src={item.imageUrl} alt={item.name} className={styles.humidorCardImage} />
+                                                ) : (
+                                                    <div className={styles.humidorCardPlaceholder}>
+                                                        <Flame size={20} />
+                                                    </div>
+                                                )}
+                                                <div className={styles.humidorCardBody}>
+                                                    <div className={styles.humidorCardTop}>
+                                                        <h4 className={styles.humidorCardName}>{item.name}</h4>
+                                                        <span className={styles.humidorQty}>x{item.quantity}</span>
+                                                    </div>
+                                                    <div className={styles.humidorTags}>
+                                                        {item.brand && <span className={styles.humidorTag}>{item.brand}</span>}
+                                                        {item.size && <span className={styles.humidorTag}>{item.size}</span>}
+                                                        {item.wrapper && <span className={styles.humidorTag}>{item.wrapper}</span>}
+                                                        {item.origin && <span className={styles.humidorTag}>{item.origin}</span>}
+                                                    </div>
+                                                    {item.notes && <p className={styles.humidorNotes}>{item.notes}</p>}
+                                                </div>
+                                            </div>
+                                        ))}
+                                    </div>
+                                )}
                             </div>
                         )}
                         {activeTab === "trades" && (

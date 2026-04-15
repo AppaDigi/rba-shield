@@ -1,6 +1,7 @@
 import { NextRequest, NextResponse } from "next/server";
 import { prisma } from "@/lib/prisma";
 import { auth } from "@/lib/auth";
+import { createMentionNotifications } from "@/lib/mentions";
 
 // GET /api/posts/[id]/comments?cursor=<cuid>
 export async function GET(
@@ -57,6 +58,13 @@ export async function POST(
         include: {
             user: { select: { id: true, name: true, username: true, avatar: true } },
         },
+    });
+
+    await createMentionNotifications({
+        actorId: session.user.id,
+        content: comment.content,
+        entityUrl: `/#post-${postId}`,
+        contextLabel: "in a comment in The Lounge",
     });
 
     return NextResponse.json(comment, { status: 201 });

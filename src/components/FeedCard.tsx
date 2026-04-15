@@ -120,8 +120,25 @@ export default function FeedCard({ post, onDelete }: FeedCardProps) {
 
     const timeAgo = formatDistanceToNow(new Date(post.createdAt), { addSuffix: true });
 
+    function renderContentWithMentions(text: string) {
+        const parts = text.split(/(@[a-z0-9_]{3,20})/gi);
+
+        return parts.map((part, index) => {
+            if (/^@[a-z0-9_]{3,20}$/i.test(part)) {
+                const username = part.slice(1).toLowerCase();
+                return (
+                    <Link key={`${part}-${index}`} href={`/profile/${username}`} className={styles.mentionLink}>
+                        {part}
+                    </Link>
+                );
+            }
+
+            return <span key={`${part}-${index}`}>{part}</span>;
+        });
+    }
+
     return (
-        <div className={styles.card}>
+        <div className={styles.card} id={`post-${post.id}`}>
             {/* Header */}
             <div className={styles.header}>
                 <Link href={`/profile/${post.author.username}`} className={styles.userInfo}>
@@ -169,7 +186,7 @@ export default function FeedCard({ post, onDelete }: FeedCardProps) {
             </div>
 
             {/* Text */}
-            <div className={styles.text}>{post.content}</div>
+            <div className={styles.text}>{renderContentWithMentions(post.content)}</div>
 
             {/* Media Grid */}
             {post.mediaUrls.length > 0 && (
@@ -252,7 +269,7 @@ export default function FeedCard({ post, onDelete }: FeedCardProps) {
                                         />
                                         <div className={styles.commentBody}>
                                             <span className={styles.commentUser}>{c.user.name ?? c.user.username}</span>
-                                            <span className={styles.commentText}>{c.content}</span>
+                                            <span className={styles.commentText}>{renderContentWithMentions(c.content)}</span>
                                         </div>
                                     </div>
                                 ))}

@@ -109,12 +109,82 @@
   color: var(--text-secondary);
   border: 1px solid var(--border-subtle);
   transition: all 0.2s;
+  position: relative;
 }
 
 .controlBtn:hover {
   background: var(--bg-card);
   color: var(--text-primary);
   border-color: var(--border-highlight);
+}
+
+.controlBadge {
+  position: absolute;
+  top: -0.15rem;
+  right: -0.15rem;
+  width: 1rem;
+  height: 1rem;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  border-radius: 999px;
+  background: var(--accent-primary);
+  color: #000;
+  font-size: 0.65rem;
+  font-weight: 800;
+}
+
+.mobileSearchWrap {
+  margin-bottom: 0.5rem;
+}
+
+.mobileSearch {
+  position: relative;
+}
+
+.mobileSearchIcon {
+  position: absolute;
+  left: 0.85rem;
+  top: 50%;
+  transform: translateY(-50%);
+  color: var(--text-dim);
+}
+
+.mobileSearchInput {
+  width: 100%;
+  background: var(--bg-floating);
+  border: 1px solid var(--border-subtle);
+  color: var(--text-primary);
+  border-radius: 999px;
+  padding: 0.75rem 0.9rem 0.75rem 2.35rem;
+  font: inherit;
+  outline: none;
+}
+
+.mobileSearchInput:focus {
+  border-color: var(--border-highlight);
+}
+
+.headerMenu {
+  display: grid;
+  gap: 0.25rem;
+  padding: 0.5rem;
+  margin-bottom: 0.5rem;
+  background: rgba(22, 14, 9, 0.98);
+  border: 1px solid var(--border-subtle);
+  border-radius: 20px;
+}
+
+.headerMenuLink {
+  padding: 0.8rem 0.9rem;
+  border-radius: 14px;
+  color: var(--text-primary);
+  font-size: 0.9rem;
+  font-weight: 600;
+}
+
+.headerMenuLink:hover {
+  background: var(--bg-subtle);
 }
 
 /* Stories / Highlights - Facebook Style */
