@@ -11,6 +11,61 @@ const loginSchema = z.object({
     password: z.string().min(1),
 });
 
+const googleAuthEnabled = Boolean(
+    process.env.GOOGLE_CLIENT_ID && process.env.GOOGLE_CLIENT_SECRET
+);
+
+const providers = [
+    CredentialsProvider({
+        name: "credentials",
+        credentials: {
+            email: { label: "Email", type: "email" },
+            password: { label: "Password", type: "password" },
+        },
+        async authorize(credentials) {
+            const parsed = loginSchema.safeParse(credentials);
+            if (!parsed.success) return null;
+
+            const { email, password } = parsed.data;
+            const user = await prisma.user.findUnique({ where: { email } });
+            if (!user || !user.passwordHash) return null;
+
+            const passwordsMatch = await bcrypt.compare(password, user.passwordHash);
+            if (!passwordsMatch) return null;
+
+            return {
+                id: user.id,
+                email: user.email,
+                name: user.name,
+                username: user.username,
+                image: user.avatar ?? undefined,
+            };
+        },
+    }),
+    ...(googleAuthEnabled
+        ? [
+              GoogleProvider({
+                  clientId: process.env.GOOGLE_CLIENT_ID!,
+                  clientSecret: process.env.GOOGLE_CLIENT_SECRET!,
+                  profile(profile) {
+                      const rawUsername = (profile.name ?? profile.email.split("@")[0])
+                          .toLowerCase()
+                          .replace(/\s+/g, "_")
+                          .replace(/[^a-z0-9_]/g, "")
+                          .slice(0, 20);
+                      return {
+                          id: profile.sub,
+                          name: profile.name,
+                          email: profile.email,
+                          image: profile.picture,
+                          username: `${rawUsername}_${profile.sub.slice(-4)}`,
+                      };
+                  },
+              }),
+          ]
+        : []),
+];
+
 export const { handlers, auth, signIn, signOut } = NextAuth({
     adapter: PrismaAdapter(prisma),
     session: { strategy: "jwt" },
@@ -18,58 +73,7 @@ export const { handlers, auth, signIn, signOut } = NextAuth({
         signIn: "/auth/login",
         error: "/auth/login",
     },
-    providers: [
-        CredentialsProvider({
-            name: "credentials",
-            credentials: {
-                email: { label: "Email", type: "email" },
-                password: { label: "Password", type: "password" },
-            },
-            async authorize(credentials) {
-                const parsed = loginSchema.safeParse(credentials);
-                if (!parsed.success) return null;
-
-                const { email, password } = parsed.data;
-                const user = await prisma.user.findUnique({ where: { email } });
-                if (!user || !user.passwordHash) return null;
-
-                const passwordsMatch = await bcrypt.compare(password, user.passwordHash);
-                if (!passwordsMatch) return null;
-
-                return {
-                    id: user.id,
-                    email: user.email,
-                    name: user.name,
-                    username: user.username,
-                    image: user.avatar ?? undefined,
-                };
-            },
-        }),
-        GoogleProvider({
-            clientId: process.env.GOOGLE_CLIENT_ID!,
-            clientSecret: process.env.GOOGLE_CLIENT_SECRET!,
-            profile(profile) {
-                // Auto-generate username from Google display name
-                const rawUsername = (profile.name ?? profile.email.split("@")[0])
-                    .toLowerCase()
-                    .replace(/\s+/g, "_")
-                    .replace(/[^a-z0-9_]/g, "")
-                    .slice(0, 20);
-                return {
-                    id: profile.sub,
-                    name: profile.name,
-                    email: profile.email,
-                    image: profile.picture,
-                    username: `${rawUsername}_${profile.sub.slice(-4)}`,
-                };
-            },
-        }),
-        // Apple provider - scaffold, disabled until credentials are provided
-        // AppleProvider({
-        //   clientId: process.env.APPLE_CLIENT_ID!,
-        //   clientSecret: process.env.APPLE_CLIENT_SECRET!,
-        // }),
-    ],
+    providers,
     callbacks: {
         async jwt({ token, user, trigger, session }) {
             if (user) {

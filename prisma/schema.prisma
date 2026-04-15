@@ -6,8 +6,9 @@ generator client {
 }
 
 datasource db {
-  provider = "sqlite"
-  url      = env("DATABASE_URL")
+  provider  = "postgresql"
+  url       = env("DATABASE_URL")
+  directUrl = env("DIRECT_URL")
 }
 
 // ─── NextAuth Required Models ─────────────────────────────────────────────────
@@ -50,21 +51,21 @@ model VerificationToken {
 // ─── Application Models ────────────────────────────────────────────────────────
 
 model User {
-  id           String   @id @default(cuid())
-  email        String   @unique
+  id            String    @id @default(cuid())
+  email         String    @unique
   emailVerified DateTime?
-  username     String   @unique
-  name         String?
-  passwordHash String?
-  bio          String?
-  avatar       String?  // base64 data URL or external URL
-  location     String?
-  xp           Int      @default(0)
-  cigarsLogged Int      @default(0)
-  reviewCount  Int      @default(0)
-  tradeCount   Int      @default(0)
-  createdAt    DateTime @default(now())
-  updatedAt    DateTime @updatedAt
+  username      String    @unique
+  name          String?
+  passwordHash  String?
+  bio           String?
+  avatar        String? // base64 data URL or external URL
+  location      String?
+  xp            Int       @default(0)
+  cigarsLogged  Int       @default(0)
+  reviewCount   Int       @default(0)
+  tradeCount    Int       @default(0)
+  createdAt     DateTime  @default(now())
+  updatedAt     DateTime  @updatedAt
 
   // NextAuth relations
   accounts Account[]
@@ -89,8 +90,8 @@ model User {
   humidorItems    HumidorItem[]
   swapListings    SwapListing[]
   tradeOffers     TradeOffer[]
-  givenRatings    TradeRating[]   @relation("Rater")
-  receivedRatings TradeRating[]   @relation("RatedUser")
+  givenRatings    TradeRating[] @relation("Rater")
+  receivedRatings TradeRating[] @relation("RatedUser")
 
   // Messages
   conversations ConversationParticipant[]
@@ -120,12 +121,12 @@ model Follow {
 }
 
 model FriendRequest {
-  id         String              @id @default(cuid())
+  id         String   @id @default(cuid())
   senderId   String
   receiverId String
-  status     String              @default("PENDING") // PENDING | ACCEPTED | DECLINED
-  createdAt  DateTime            @default(now())
-  updatedAt  DateTime            @updatedAt
+  status     String   @default("PENDING") // PENDING | ACCEPTED | DECLINED
+  createdAt  DateTime @default(now())
+  updatedAt  DateTime @updatedAt
 
   sender   User @relation("Sender", fields: [senderId], references: [id], onDelete: Cascade)
   receiver User @relation("Receiver", fields: [receiverId], references: [id], onDelete: Cascade)
@@ -134,13 +135,13 @@ model FriendRequest {
 }
 
 model Post {
-  id        String    @id @default(cuid())
+  id        String   @id @default(cuid())
   authorId  String
   content   String
-  mediaUrls String?   // JSON-encoded string[]
+  mediaUrls String? // JSON-encoded string[]
   societyId String?
-  createdAt DateTime  @default(now())
-  updatedAt DateTime  @updatedAt
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
 
   author   User      @relation(fields: [authorId], references: [id], onDelete: Cascade)
   society  Society?  @relation(fields: [societyId], references: [id], onDelete: SetNull)
@@ -218,7 +219,7 @@ model AuctionItem {
   sortOrder         Int      @default(0)
   createdAt         DateTime @default(now())
 
-  event LiveEvent   @relation(fields: [eventId], references: [id], onDelete: Cascade)
+  event LiveEvent    @relation(fields: [eventId], references: [id], onDelete: Cascade)
   bids  AuctionBid[]
 }
 
@@ -265,8 +266,8 @@ model SwapListing {
   createdAt       DateTime @default(now())
   updatedAt       DateTime @updatedAt
 
-  author      User         @relation(fields: [authorId], references: [id], onDelete: Cascade)
-  humidorItem HumidorItem? @relation(fields: [humidorItemId], references: [id], onDelete: SetNull)
+  author      User          @relation(fields: [authorId], references: [id], onDelete: Cascade)
+  humidorItem HumidorItem?  @relation(fields: [humidorItemId], references: [id], onDelete: SetNull)
   offers      TradeOffer[]
   ratings     TradeRating[]
 }
@@ -281,8 +282,8 @@ model TradeOffer {
   createdAt    DateTime @default(now())
   updatedAt    DateTime @updatedAt
 
-  listing  SwapListing @relation(fields: [listingId], references: [id], onDelete: Cascade)
-  offerer  User        @relation(fields: [offererId], references: [id], onDelete: Cascade)
+  listing SwapListing @relation(fields: [listingId], references: [id], onDelete: Cascade)
+  offerer User        @relation(fields: [offererId], references: [id], onDelete: Cascade)
 }
 
 model TradeRating {
@@ -294,9 +295,9 @@ model TradeRating {
   comment     String?
   createdAt   DateTime @default(now())
 
-  listing    SwapListing @relation(fields: [listingId], references: [id], onDelete: Cascade)
-  rater      User        @relation("Rater",     fields: [raterId],     references: [id], onDelete: Cascade)
-  ratedUser  User        @relation("RatedUser", fields: [ratedUserId], references: [id], onDelete: Cascade)
+  listing   SwapListing @relation(fields: [listingId], references: [id], onDelete: Cascade)
+  rater     User        @relation("Rater", fields: [raterId], references: [id], onDelete: Cascade)
+  ratedUser User        @relation("RatedUser", fields: [ratedUserId], references: [id], onDelete: Cascade)
 
   @@unique([listingId, raterId])
 }
@@ -304,9 +305,9 @@ model TradeRating {
 // ─── Direct Messages ─────────────────────────────────────────────────────────
 
 model Conversation {
-  id           String   @id @default(cuid())
-  createdAt    DateTime @default(now())
-  updatedAt    DateTime @updatedAt
+  id        String   @id @default(cuid())
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
 
   participants ConversationParticipant[]
   messages     DirectMessage[]
@@ -339,7 +340,7 @@ model DirectMessage {
 model Notification {
   id          String   @id @default(cuid())
   userId      String
-  type        String   // FOLLOW | LIKE | COMMENT | TRADE_OFFER | TRADE_ACCEPTED
+  type        String // FOLLOW | LIKE | COMMENT | TRADE_OFFER | TRADE_ACCEPTED
   actorName   String?
   actorAvatar String?
   body        String
@@ -400,7 +401,7 @@ model Article {
   title      String
   excerpt    String?
   content    String
-  category   String   // REGION | SHAPE | AGING | ETIQUETTE | BRAND | BLEND
+  category   String // REGION | SHAPE | AGING | ETIQUETTE | BRAND | BLEND
   coverImage String?
   authorName String?
   published  Boolean  @default(true)
