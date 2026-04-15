@@ -71,7 +71,7 @@ export default function RegisterPage() {
             redirect: false,
         });
 
-        router.push(`/profile/${form.username.toLowerCase()}`);
+        router.push("/");
         router.refresh();
     }
 
@@ -92,7 +92,7 @@ export default function RegisterPage() {
             >
                 <div className={styles.logoArea}>
                     <h1 className={styles.logo}>CIGAR<br />CONNOISSEUR</h1>
-                    <p className={styles.tagline}>The Connoisseur's Lounge</p>
+                    <p className={styles.tagline}>The Connoisseur&apos;s Lounge</p>
                 </div>
 
                 <h2 className={styles.heading}>Join The Lounge</h2>
