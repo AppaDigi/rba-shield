@@ -49,6 +49,7 @@ export default function MentionDropdown({ open, results, selectedIndex, onSelect
                     {results.map((user, idx) => (
                         <button
                             key={user.id}
+                            type="button"
                             data-idx={idx}
                             className={`${styles.item} ${idx === selectedIndex ? styles.itemActive : ""}`}
                             onMouseDown={(e) => {
