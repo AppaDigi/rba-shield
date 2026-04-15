@@ -32,17 +32,24 @@ export async function POST(req: NextRequest) {
         return NextResponse.json({ following: false, followerCount: count });
     } else {
         // Follow
-        await prisma.follow.create({
+        const [actor] = await Promise.all([
+            prisma.user.findUnique({ where: { id: session.user.id }, select: { name: true, username: true, avatar: true } }),
+            prisma.follow.create({ data: { followerId: session.user.id, followingId: targetUserId } }),
+            prisma.user.update({ where: { id: targetUserId }, data: { xp: { increment: 10 } } }),
+        ]);
+
+        // Fire-and-forget notification (don't block the response)
+        prisma.notification.create({
             data: {
-                followerId: session.user.id,
-                followingId: targetUserId,
+                userId: targetUserId,
+                type: "FOLLOW",
+                actorName: actor?.name ?? actor?.username ?? null,
+                actorAvatar: actor?.avatar ?? null,
+                body: `${actor?.name ?? actor?.username ?? "Someone"} started following you.`,
+                entityUrl: actor ? `/profile/${actor.username}` : null,
             },
-        });
-        // Reward XP for gaining a new follower
-        await prisma.user.update({
-            where: { id: targetUserId },
-            data: { xp: { increment: 10 } },
-        });
+        }).catch(() => {});
+
         const count = await prisma.follow.count({ where: { followingId: targetUserId } });
         return NextResponse.json({ following: true, followerCount: count });
     }

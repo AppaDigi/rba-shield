@@ -12,16 +12,22 @@ import { AnimatePresence, motion } from "framer-motion";
 import Link from "next/link";
 import { useSession } from "next-auth/react";
 
-const STORIES = [
-  { id: 1, name: "Your Story", user: "https://i.pravatar.cc/150?u=kiefer", active: false },
-  { id: 2, name: "Winston", user: "https://i.pravatar.cc/150?u=winston", active: true },
-  { id: 3, name: "The Gentry", user: "https://i.pravatar.cc/150?u=gentry", active: true },
-  { id: 4, name: "Padron", user: "https://i.pravatar.cc/150?u=padron", active: true },
-  { id: 5, name: "Cigar Afic.", user: "https://i.pravatar.cc/150?u=aficionado", active: true },
-  { id: 6, name: "Havana Club", user: "https://i.pravatar.cc/150?u=havana", active: true },
-];
-
 type FeedType = "latest" | "trending" | "friends";
+
+interface StoryAuthor {
+  id: string;
+  name: string | null;
+  username: string;
+  avatar: string | null;
+}
+
+interface Story {
+  id: string;
+  imageUrl: string;
+  caption: string | null;
+  authorId: string;
+  author: StoryAuthor;
+}
 
 export default function Home() {
   const { data: session } = useSession();
@@ -35,6 +41,7 @@ export default function Home() {
   const [headerMenuOpen, setHeaderMenuOpen] = useState(false);
   const [searchQuery, setSearchQuery] = useState("");
   const [unreadNotifications, setUnreadNotifications] = useState(0);
+  const [stories, setStories] = useState<Story[]>([]);
 
   const fetchPosts = useCallback(async (feedType: FeedType, cursorId?: string) => {
     const params = new URLSearchParams({ feed: feedType, limit: "10" });
@@ -76,6 +83,13 @@ export default function Home() {
       .then((data) => setUnreadNotifications(data?.unreadCount ?? 0))
       .catch(() => setUnreadNotifications(0));
   }, [session?.user?.id]);
+
+  useEffect(() => {
+    fetch("/api/stories")
+      .then((res) => res.ok ? res.json() : [])
+      .then((data: Story[]) => setStories(Array.isArray(data) ? data : []))
+      .catch(() => {});
+  }, []);
 
   async function loadMore() {
     if (!hasMore || loadingMore || !cursor) return;
@@ -205,12 +219,33 @@ export default function Home() {
 
           {/* Stories Rail */}
           <div className={styles.stories}>
-            {STORIES.map((story) => (
-              <div key={story.id} className={styles.story}>
-                <div className={styles.storyRing} style={{ background: story.active ? undefined : "var(--bg-subtle)" }}>
-                  <img src={story.user} alt={story.name} className={styles.storyUser} />
+            {/* Your Story slot */}
+            {session?.user && (
+              <div className={styles.story}>
+                <div className={styles.storyRing} style={{ background: "var(--bg-subtle)" }}>
+                  {session.user.image ? (
+                    <img src={session.user.image} alt="Your Story" className={styles.storyUser} />
+                  ) : (
+                    <div className={styles.storyUser} style={{ display: "flex", alignItems: "center", justifyContent: "center", background: "var(--bg-card)", color: "var(--text-secondary)", fontSize: "1rem", fontWeight: 700 }}>
+                      {(session.user.name ?? "Y").charAt(0).toUpperCase()}
+                    </div>
+                  )}
                 </div>
-                <span className={styles.storyName}>{story.name}</span>
+                <span className={styles.storyName}>Your Story</span>
+              </div>
+            )}
+            {stories.map((story) => (
+              <div key={story.id} className={styles.story}>
+                <div className={styles.storyRing}>
+                  {story.author.avatar ? (
+                    <img src={story.author.avatar} alt={story.author.name ?? story.author.username} className={styles.storyUser} />
+                  ) : (
+                    <div className={styles.storyUser} style={{ display: "flex", alignItems: "center", justifyContent: "center", background: "var(--bg-card)", color: "var(--text-secondary)", fontSize: "1rem", fontWeight: 700 }}>
+                      {(story.author.name ?? story.author.username).charAt(0).toUpperCase()}
+                    </div>
+                  )}
+                </div>
+                <span className={styles.storyName}>{story.author.name ?? story.author.username}</span>
               </div>
             ))}
           </div>

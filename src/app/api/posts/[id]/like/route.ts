@@ -22,7 +22,25 @@ export async function POST(
     if (existing) {
         await prisma.like.delete({ where: { id: existing.id } });
     } else {
-        await prisma.like.create({ data: { userId, postId } });
+        const [post, actor] = await Promise.all([
+            prisma.post.findUnique({ where: { id: postId }, select: { authorId: true } }),
+            prisma.user.findUnique({ where: { id: userId }, select: { name: true, username: true, avatar: true } }),
+            prisma.like.create({ data: { userId, postId } }),
+        ]);
+
+        // Notify post author (not self-likes)
+        if (post && post.authorId !== userId) {
+            prisma.notification.create({
+                data: {
+                    userId: post.authorId,
+                    type: "LIKE",
+                    actorName: actor?.name ?? actor?.username ?? null,
+                    actorAvatar: actor?.avatar ?? null,
+                    body: `${actor?.name ?? actor?.username ?? "Someone"} liked your post.`,
+                    entityUrl: "/",
+                },
+            }).catch(() => {});
+        }
     }
 
     const likeCount = await prisma.like.count({ where: { postId } });
