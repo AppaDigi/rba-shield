@@ -40,62 +40,160 @@ const externalResultsSchema = z.object({
     ).default([]),
 });
 
+const identifyJsonSchema = {
+    name: "cigar_identification",
+    strict: true,
+    schema: {
+        type: "object",
+        additionalProperties: false,
+        properties: {
+            displayName: { type: "string", description: "Best full cigar name guess." },
+            brand: { type: ["string", "null"] },
+            line: { type: ["string", "null"] },
+            vitola: { type: ["string", "null"] },
+            wrapper: { type: ["string", "null"] },
+            bandText: {
+                type: "array",
+                items: { type: "string" },
+            },
+            confidence: { type: "number", minimum: 0, maximum: 1 },
+            notes: { type: ["string", "null"] },
+            alternateCandidates: {
+                type: "array",
+                items: {
+                    type: "object",
+                    additionalProperties: false,
+                    properties: {
+                        displayName: { type: "string" },
+                        reason: { type: "string" },
+                    },
+                    required: ["displayName", "reason"],
+                },
+            },
+        },
+        required: [
+            "displayName",
+            "brand",
+            "line",
+            "vitola",
+            "wrapper",
+            "bandText",
+            "confidence",
+            "notes",
+            "alternateCandidates",
+        ],
+    },
+} as const;
+
+const externalResultsJsonSchema = {
+    name: "cigar_buy_options",
+    strict: true,
+    schema: {
+        type: "object",
+        additionalProperties: false,
+        properties: {
+            summary: { type: "string" },
+            retailers: {
+                type: "array",
+                items: {
+                    type: "object",
+                    additionalProperties: false,
+                    properties: {
+                        name: { type: "string" },
+                        url: { type: "string" },
+                        price: { type: ["string", "null"] },
+                        availability: { type: ["string", "null"] },
+                        notes: { type: ["string", "null"] },
+                    },
+                    required: ["name", "url", "price", "availability", "notes"],
+                },
+            },
+            localShops: {
+                type: "array",
+                items: {
+                    type: "object",
+                    additionalProperties: false,
+                    properties: {
+                        name: { type: "string" },
+                        url: { type: ["string", "null"] },
+                        address: { type: ["string", "null"] },
+                        phone: { type: ["string", "null"] },
+                        notes: { type: ["string", "null"] },
+                    },
+                    required: ["name", "url", "address", "phone", "notes"],
+                },
+            },
+        },
+        required: ["summary", "retailers", "localShops"],
+    },
+} as const;
+
+type OpenRouterResponse = {
+    choices?: Array<{
+        message?: {
+            content?: string | Array<{ type?: string; text?: string }>;
+            annotations?: Array<{
+                type?: string;
+                url_citation?: {
+                    title?: string;
+                    url?: string;
+                };
+            }>;
+        };
+    }>;
+};
+
 export type CigarIdentification = z.infer<typeof identifySchema>;
 export type ExternalBuyOptions = z.infer<typeof externalResultsSchema> & {
     sources: { title: string; url: string }[];
 };
 
-export function hasOpenAIKey() {
-    return Boolean(process.env.OPENAI_API_KEY);
+export function hasCigarAiKey() {
+    return Boolean(process.env.OPENROUTER_API_KEY);
 }
 
-function getOpenAIKey() {
-    const apiKey = process.env.OPENAI_API_KEY;
+function getOpenRouterKey() {
+    const apiKey = process.env.OPENROUTER_API_KEY;
     if (!apiKey) {
-        throw new Error("OPENAI_API_KEY is not configured on the server.");
+        throw new Error("OPENROUTER_API_KEY is not configured on the server.");
     }
     return apiKey;
 }
 
-async function createResponse(body: object) {
-    const res = await fetch("https://api.openai.com/v1/responses", {
+async function createChatCompletion(body: object) {
+    const res = await fetch("https://openrouter.ai/api/v1/chat/completions", {
         method: "POST",
         headers: {
             "Content-Type": "application/json",
-            Authorization: `Bearer ${getOpenAIKey()}`,
+            Authorization: `Bearer ${getOpenRouterKey()}`,
+            "HTTP-Referer": "https://cigarswap.app",
+            "X-Title": "Cigar Swap",
         },
         body: JSON.stringify(body),
     });
 
     if (!res.ok) {
         const errorText = await res.text();
-        throw new Error(`OpenAI request failed (${res.status}): ${errorText}`);
+        throw new Error(`OpenRouter request failed (${res.status}): ${errorText}`);
     }
 
-    return res.json() as Promise<Record<string, unknown>>;
+    return (await res.json()) as OpenRouterResponse;
 }
 
-function extractOutputText(response: Record<string, unknown>) {
-    if (typeof response.output_text === "string" && response.output_text.trim()) {
-        return response.output_text;
+function extractMessageContent(response: OpenRouterResponse) {
+    const content = response.choices?.[0]?.message?.content;
+    if (typeof content === "string") {
+        return content.trim();
     }
 
-    const output = Array.isArray(response.output) ? response.output : [];
-    const textParts: string[] = [];
-
-    for (const item of output) {
-        if (!item || typeof item !== "object") continue;
-        const rawContent = (item as { content?: unknown }).content;
-        if (!Array.isArray(rawContent)) continue;
-
-        for (const part of rawContent as Array<{ text?: string; type?: string }>) {
-            if (part?.type === "output_text" && typeof part.text === "string") {
-                textParts.push(part.text);
-            }
-        }
+    if (!Array.isArray(content)) {
+        return "";
     }
 
-    return textParts.join("\n").trim();
+    return content
+        .map((part) => (part?.type === "text" && typeof part.text === "string" ? part.text : ""))
+        .join("\n")
+        .trim();
 }
 
 function parseJson<T>(raw: string) {
@@ -151,69 +249,62 @@ function scoreTextMatch(text: string, terms: string[]) {
     return terms.reduce((score, term) => score + (haystack.includes(term) ? term.length : 0), 0);
 }
 
-function parseLocation(location?: string) {
-    if (!location?.trim()) return undefined;
-
-    const [city, region] = location
-        .split(",")
-        .map((part) => part.trim())
-        .filter(Boolean);
-
-    return {
-        type: "approximate" as const,
-        country: "US",
-        city: city ?? location.trim(),
-        ...(region ? { region } : {}),
-    };
-}
-
-function extractSources(response: Record<string, unknown>) {
-    const output = Array.isArray(response.output) ? response.output : [];
-    const sources: { title: string; url: string }[] = [];
-
-    for (const item of output) {
-        if (!item || typeof item !== "object") continue;
-        if ((item as { type?: string }).type !== "web_search_call") continue;
-
-        const rawSources = Array.isArray((item as { action?: { sources?: unknown[] } }).action?.sources)
-            ? ((item as { action?: { sources?: Array<{ title?: string; url?: string }> } }).action?.sources ?? [])
-            : [];
-
-        for (const source of rawSources) {
-            if (!source?.url) continue;
-            sources.push({
-                title: source.title?.trim() || new URL(source.url).hostname,
-                url: source.url,
-            });
-        }
-    }
+function extractSources(response: OpenRouterResponse) {
+    const annotations = response.choices?.[0]?.message?.annotations ?? [];
+    const sources = annotations
+        .filter((annotation) => annotation?.type === "url_citation" && annotation.url_citation?.url)
+        .map((annotation) => ({
+            title: annotation.url_citation?.title?.trim() || new URL(annotation.url_citation!.url!).hostname,
+            url: annotation.url_citation!.url!,
+        }));
 
     return Array.from(new Map(sources.map((source) => [source.url, source])).values()).slice(0, 8);
 }
 
+function coerceExternalUrl(url: string | null | undefined) {
+    if (!url) return null;
+
+    try {
+        return new URL(url).toString();
+    } catch {
+        if (url.startsWith("www.")) {
+            return `https://${url}`;
+        }
+
+        return null;
+    }
+}
+
 export async function identifyCigarFromImages(images: string[]) {
-    const identifyResponse = await createResponse({
-        model: process.env.OPENAI_CIGAR_IDENTIFY_MODEL ?? "gpt-4.1-mini",
-        input: [
+    const identifyResponse = await createChatCompletion({
+        model: process.env.OPENROUTER_CIGAR_IDENTIFY_MODEL ?? "google/gemini-2.5-pro",
+        temperature: 0.1,
+        response_format: {
+            type: "json_schema",
+            json_schema: identifyJsonSchema,
+        },
+        plugins: [{ id: "response-healing" }],
+        messages: [
             {
                 role: "user",
                 content: [
                     {
-                        type: "input_text",
+                        type: "text",
                         text:
                             "You identify cigars from photos. Return JSON only with keys displayName, brand, line, vitola, wrapper, bandText, confidence, notes, alternateCandidates. Confidence must be between 0 and 1. bandText must be an array of text seen on cigar bands or packaging. alternateCandidates should include up to 3 objects with displayName and reason. If uncertain, still provide the best guess and explain why.",
                     },
                     ...images.map((image) => ({
-                        type: "input_image",
-                        image_url: image,
-                        detail: "high",
+                        type: "image_url",
+                        image_url: {
+                            url: image,
+                        },
                     })),
                 ],
             },
         ],
     });
 
-    return identifySchema.parse(parseJson<CigarIdentification>(extractOutputText(identifyResponse)));
+    return identifySchema.parse(parseJson<CigarIdentification>(extractMessageContent(identifyResponse)));
 }
 
 export function identifyCigarFromQuery(query: string) {
@@ -272,31 +363,32 @@ export async function findSwapMatches(identification: CigarIdentification) {
 }
 
 export async function findExternalBuyOptions(identification: CigarIdentification, location?: string) {
-    const cigarName = identification.displayName;
-    const userLocation = parseLocation(location);
-
-    const searchResponse = await createResponse({
-        model: process.env.OPENAI_CIGAR_SEARCH_MODEL ?? "gpt-5",
-        tools: [
-            {
-                type: "web_search",
-                ...(userLocation ? { user_location: userLocation } : {}),
-            },
+    const searchResponse = await createChatCompletion({
+        model: process.env.OPENROUTER_CIGAR_SEARCH_MODEL ?? "google/gemini-2.5-pro",
+        temperature: 0.2,
+        response_format: {
+            type: "json_schema",
+            json_schema: externalResultsJsonSchema,
+        },
+        plugins: [
+            { id: "web", max_results: 5 },
+            { id: "response-healing" },
         ],
-        include: ["web_search_call.action.sources"],
-        input: [
+        messages: [
             {
                 role: "user",
                 content: [
                     {
-                        type: "input_text",
+                        type: "text",
                         text: [
-                            `Find reputable current buying options for this cigar: ${cigarName}.`,
+                            `Find reputable current buying options for this cigar: ${identification.displayName}.`,
                             identification.brand ? `Brand: ${identification.brand}.` : "",
                             identification.line ? `Line: ${identification.line}.` : "",
                             identification.vitola ? `Vitola: ${identification.vitola}.` : "",
                             identification.wrapper ? `Wrapper: ${identification.wrapper}.` : "",
-                            location ? `Also find nearby cigar shops for this location: ${location}.` : "No location was provided, so skip local shops.",
+                            location
+                                ? `Also find nearby cigar shops for this location: ${location}.`
+                                : "No location was provided, so skip local shops.",
                             "Return JSON only with keys summary, retailers, localShops.",
                             "retailers should be an array of up to 4 objects with name, url, price, availability, notes.",
                             "localShops should be an array of up to 4 objects with name, url, address, phone, notes.",
@@ -310,12 +402,23 @@ export async function findExternalBuyOptions(identification: CigarIdentification
         ],
     });
 
-    const parsed = externalResultsSchema.parse(
-        parseJson<z.infer<typeof externalResultsSchema>>(extractOutputText(searchResponse))
-    );
+    const parsed = parseJson<z.infer<typeof externalResultsSchema>>(extractMessageContent(searchResponse));
+    const normalized = {
+        ...parsed,
+        retailers: (parsed.retailers ?? [])
+            .map((retailer) => ({
+                ...retailer,
+                url: coerceExternalUrl(retailer.url),
+            }))
+            .filter((retailer): retailer is z.infer<typeof externalResultsSchema>["retailers"][number] => Boolean(retailer.url)),
+        localShops: (parsed.localShops ?? []).map((shop) => ({
+            ...shop,
+            url: coerceExternalUrl(shop.url),
+        })),
+    };
 
     return {
-        ...parsed,
+        ...externalResultsSchema.parse(normalized),
         sources: extractSources(searchResponse),
     };
 }

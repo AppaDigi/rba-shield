@@ -3,7 +3,7 @@ import {
     buildManualBuyOptions,
     findExternalBuyOptions,
     findSwapMatches,
-    hasOpenAIKey,
+    hasCigarAiKey,
     identifyCigarFromImages,
     identifyCigarFromQuery,
 } from "@/lib/cigar-scout";
@@ -33,7 +33,7 @@ export async function POST(req: NextRequest) {
         }
 
         const { images, query, searchLocation } = parsed.data;
-        const canUseVision = images.length > 0 && hasOpenAIKey();
+        const canUseVision = images.length > 0 && hasCigarAiKey();
         const identification = canUseVision
             ? await identifyCigarFromImages(images)
             : identifyCigarFromQuery(query?.trim() || "Unknown cigar");
@@ -54,7 +54,7 @@ export async function POST(req: NextRequest) {
     } catch (error) {
         console.error("[CIGAR_IDENTIFY]", error);
         const message = error instanceof Error ? error.message : "Unable to analyze this cigar right now.";
-        const status = message.includes("OPENAI_API_KEY") ? 500 : 500;
+        const status = message.includes("OPENROUTER_API_KEY") ? 500 : 500;
 
         return NextResponse.json(
             {
