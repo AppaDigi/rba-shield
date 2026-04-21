@@ -1,0 +1,231 @@
+/* Sidebar.module.css */
+
+.sidebarContainer {
+    padding: 1rem 0;
+    height: calc(100vh - 4rem);
+    /* Adjust based on header */
+    overflow-y: auto;
+}
+
+.sectionTitle {
+    font-size: 0.75rem;
+    font-weight: 700;
+    text-transform: uppercase;
+    color: var(--text-secondary);
+    letter-spacing: 0.05em;
+    margin: 1.5rem 1rem 0.5rem;
+}
+
+.navItem {
+    display: flex;
+    align-items: center;
+    gap: 1rem;
+    padding: 0.75rem 1.5rem;
+    color: var(--text-primary);
+    text-decoration: none;
+    border-left: 3px solid transparent;
+    transition: all 0.2s;
+}
+
+.navItem:hover {
+    background: var(--bg-subtle);
+    border-left-color: var(--border-highlight);
+}
+
+.navItemActive {
+    background: var(--bg-subtle);
+    border-left-color: var(--accent-primary);
+    color: var(--accent-primary);
+}
+
+.icon {
+    width: 24px;
+}
+
+/* Right Sidebar Specifics */
+.friendItem {
+    display: flex;
+    align-items: center;
+    gap: 0.75rem;
+    padding: 0.5rem 1rem;
+    cursor: pointer;
+    transition: background 0.2s;
+    border-radius: var(--radius-md);
+    margin: 0 0.5rem;
+}
+
+.friendItem:hover {
+    background: var(--bg-subtle);
+}
+
+.avatar {
+    width: 36px;
+    height: 36px;
+    border-radius: 50%;
+    position: relative;
+}
+
+.onlineBadge {
+    position: absolute;
+    bottom: 0;
+    right: 0;
+    width: 10px;
+    height: 10px;
+    background: var(--status-online);
+    border-radius: 50%;
+    border: 2px solid var(--bg-card);
+}
+
+.friendName {
+    font-size: 0.9rem;
+    font-weight: 600;
+}
+
+.trendItem {
+    padding: 0.75rem 1rem;
+    border-bottom: 1px solid var(--border-subtle);
+    cursor: pointer;
+}
+
+.trendItem:hover .trendTitle {
+    color: var(--accent-primary);
+}
+
+.trendCategory {
+    font-size: 0.7rem;
+    color: var(--text-secondary);
+    margin-bottom: 0.25rem;
+}
+
+.trendTitle {
+    font-size: 0.9rem;
+    font-weight: 700;
+    transition: color 0.2s;
+}
+
+.trendMeta {
+    font-size: 0.8rem;
+    color: var(--text-dim);
+}
+
+/* ─── Auth User Profile Block ─── */
+.userProfile {
+    display: flex;
+    align-items: center;
+    gap: 0.75rem;
+    padding: 0.875rem 1.25rem;
+    margin: 0 0.5rem 0.5rem;
+    border-radius: var(--radius-md);
+    transition: background 0.2s;
+    text-decoration: none;
+    border: 1px solid var(--border-subtle);
+    background: var(--bg-subtle);
+}
+
+.userProfile:hover {
+    background: var(--bg-floating);
+    border-color: var(--border-highlight);
+}
+
+.sidebarAvatar {
+    position: relative;
+    width: 38px;
+    height: 38px;
+    flex-shrink: 0;
+}
+
+.sidebarAvatarImg {
+    width: 38px;
+    height: 38px;
+    border-radius: 50%;
+    object-fit: cover;
+}
+
+.sidebarAvatarPlaceholder {
+    width: 38px;
+    height: 38px;
+    border-radius: 50%;
+    background: var(--bg-floating);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-family: var(--font-serif);
+    font-size: 1rem;
+    color: var(--accent-primary);
+}
+
+.sidebarAvatarRing {
+    position: absolute;
+    inset: -2px;
+    border-radius: 50%;
+}
+
+.sidebarUserInfo {
+    display: flex;
+    flex-direction: column;
+    min-width: 0;
+}
+
+.sidebarUserName {
+    font-size: 0.875rem;
+    font-weight: 600;
+    color: var(--text-primary);
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+}
+
+.sidebarUserLevel {
+    font-size: 0.7rem;
+    font-weight: 700;
+    letter-spacing: 0.05em;
+    text-transform: uppercase;
+}
+
+/* Sign-in Banner */
+.signInBanner {
+    display: flex;
+    align-items: center;
+    gap: 0.625rem;
+    padding: 0.75rem 1.25rem;
+    margin: 0 0.5rem 0.5rem;
+    background: rgba(212, 175, 55, 0.06);
+    border: 1px solid var(--accent-muted);
+    border-radius: var(--radius-md);
+    color: var(--accent-primary);
+    font-size: 0.875rem;
+    font-weight: 600;
+    text-decoration: none;
+    transition: all 0.2s;
+}
+
+.signInBanner:hover {
+    background: rgba(212, 175, 55, 0.12);
+}
+
+/* Sign Out Button */
+.signOutBtn {
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+    padding: 0.5rem 1.5rem;
+    color: var(--text-dim);
+    font-size: 0.8rem;
+    background: transparent;
+    border: none;
+    cursor: pointer;
+    margin-top: 0.5rem;
+    transition: color 0.2s;
+}
+
+.signOutBtn:hover {
+    color: #fca5a5;
+}
+
+/* Suggestions list */
+.suggestionList {
+    padding: 0.25rem 1rem;
+    display: flex;
+    flex-direction: column;
+    gap: 0.25rem;
+}

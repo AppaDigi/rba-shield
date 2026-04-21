@@ -1,0 +1,106 @@
+.wrapper {
+    width: 100%;
+    background: #000;
+}
+
+.playerBox {
+    width: 100%;
+    aspect-ratio: 16 / 9;
+    position: relative;
+    background: #0a0a0a;
+    overflow: hidden;
+}
+
+.iframe {
+    position: absolute;
+    inset: 0;
+    width: 100%;
+    height: 100%;
+    border: none;
+    display: block;
+}
+
+.offline {
+    position: absolute;
+    inset: 0;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    gap: 1rem;
+    background: radial-gradient(ellipse at center, #1a1a1a 0%, #0a0a0a 100%);
+}
+
+.offlineIcon {
+    font-size: 3rem;
+    opacity: 0.4;
+}
+
+.offlineText {
+    color: var(--text-secondary);
+    font-size: 0.9rem;
+}
+
+/* Overlay badges */
+.topLeft {
+    position: absolute;
+    top: 0.75rem;
+    left: 0.75rem;
+    z-index: 10;
+}
+
+.topRight {
+    position: absolute;
+    top: 0.75rem;
+    right: 0.75rem;
+    z-index: 10;
+}
+
+.liveBadge {
+    display: flex;
+    align-items: center;
+    gap: 0.4rem;
+    background: rgba(220, 38, 38, 0.92);
+    color: #fff;
+    font-size: 0.7rem;
+    font-weight: 800;
+    letter-spacing: 0.1em;
+    padding: 0.25rem 0.6rem;
+    border-radius: 4px;
+    backdrop-filter: blur(4px);
+}
+
+.liveDot {
+    width: 7px;
+    height: 7px;
+    background: #fff;
+    border-radius: 50%;
+    animation: pulse 1.4s ease-in-out infinite;
+}
+
+@keyframes pulse {
+    0%, 100% { opacity: 1; }
+    50% { opacity: 0.3; }
+}
+
+.scheduledBadge {
+    background: rgba(0, 0, 0, 0.75);
+    color: var(--accent-primary);
+    font-size: 0.7rem;
+    font-weight: 700;
+    letter-spacing: 0.1em;
+    padding: 0.25rem 0.6rem;
+    border-radius: 4px;
+    border: 1px solid var(--accent-primary);
+    backdrop-filter: blur(4px);
+}
+
+.viewerBadge {
+    background: rgba(0, 0, 0, 0.75);
+    color: #fff;
+    font-size: 0.75rem;
+    font-weight: 600;
+    padding: 0.25rem 0.6rem;
+    border-radius: 4px;
+    backdrop-filter: blur(4px);
+}
