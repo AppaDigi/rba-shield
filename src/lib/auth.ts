@@ -23,23 +23,29 @@ const providers: Provider[] = [
             password: { label: "Password", type: "password" },
         },
         async authorize(credentials) {
-            const parsed = loginSchema.safeParse(credentials);
-            if (!parsed.success) return null;
+            try {
+                const parsed = loginSchema.safeParse(credentials);
+                if (!parsed.success) return null;
 
-            const { email, password } = parsed.data;
-            const user = await prisma.user.findUnique({ where: { email } });
-            if (!user || !user.passwordHash) return null;
+                const { email, password } = parsed.data;
+                const user = await prisma.user.findUnique({ where: { email } });
+                if (!user || !user.passwordHash) return null;
 
-            const passwordsMatch = await bcrypt.compare(password, user.passwordHash);
-            if (!passwordsMatch) return null;
+                const passwordsMatch = await bcrypt.compare(password, user.passwordHash);
+                if (!passwordsMatch) return null;
 
-            return {
-                id: user.id,
-                email: user.email,
-                name: user.name,
-                username: user.username,
-                image: user.avatar ?? undefined,
-            };
+                return {
+                    id: user.id,
+                    email: user.email,
+                    name: user.name,
+                    username: user.username,
+                    xp: user.xp,
+                    image: user.avatar ?? undefined,
+                };
+            } catch (error) {
+                console.error("[AUTH_AUTHORIZE]", error);
+                return null;
+            }
         },
     }),
 ];
@@ -85,14 +91,24 @@ export const { handlers, auth, signIn, signOut } = NextAuth({
         async jwt({ token, user, trigger, session }) {
             if (user) {
                 token.id = user.id;
-                // Fetch username from DB (not always on user object from OAuth)
-                const dbUser = await prisma.user.findUnique({
-                    where: { id: user.id as string },
-                    select: { username: true, xp: true, avatar: true },
-                });
-                token.username = dbUser?.username ?? "";
-                token.xp = dbUser?.xp ?? 0;
-                token.avatar = dbUser?.avatar ?? user.image ?? "";
+                token.username = user.username ?? token.username ?? "";
+                token.xp = user.xp ?? token.xp ?? 0;
+                token.avatar = user.image ?? token.avatar ?? "";
+
+                // OAuth users may not include our app-specific fields on the user object.
+                if (!user.username || user.xp == null || !user.image) {
+                    try {
+                        const dbUser = await prisma.user.findUnique({
+                            where: { id: user.id as string },
+                            select: { username: true, xp: true, avatar: true },
+                        });
+                        token.username = dbUser?.username ?? token.username;
+                        token.xp = dbUser?.xp ?? token.xp;
+                        token.avatar = dbUser?.avatar ?? token.avatar;
+                    } catch (error) {
+                        console.error("[AUTH_JWT]", error);
+                    }
+                }
             }
             if (trigger === "update" && session) {
                 token.username = session.username ?? token.username;
