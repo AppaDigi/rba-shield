@@ -34,11 +34,12 @@ export async function POST(req: NextRequest) {
         const identification = canUseVision
             ? await identifyCigarFromImages(images)
             : identifyCigarFromQuery(query?.trim() || "Unknown cigar");
-        const swapMatches = await findSwapMatches(identification);
+        const { directMatches, suggestedMatches } = await findSwapMatches(identification);
 
         return NextResponse.json({
             identification,
-            swapMatches,
+            swapMatches: directMatches,
+            similarSwapMatches: suggestedMatches,
             mode: canUseVision ? "vision" : "manual",
         });
     } catch (error) {

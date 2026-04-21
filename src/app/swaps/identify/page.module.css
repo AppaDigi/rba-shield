@@ -363,6 +363,15 @@
     margin: 0;
 }
 
+.sectionEyebrow {
+    display: inline-block;
+    margin-bottom: 0.35rem;
+    font-size: 0.78rem;
+    text-transform: uppercase;
+    letter-spacing: 0.08em;
+    color: var(--accent-primary);
+}
+
 .tagRow,
 .sourceList {
     display: flex;

@@ -147,6 +147,10 @@ export type CigarIdentification = z.infer<typeof identifySchema>;
 export type ExternalBuyOptions = z.infer<typeof externalResultsSchema> & {
     sources: { title: string; url: string }[];
 };
+export type SwapMatchResults = {
+    directMatches: Awaited<ReturnType<typeof prisma.swapListing.findMany>>;
+    suggestedMatches: Awaited<ReturnType<typeof prisma.swapListing.findMany>>;
+};
 
 export function hasCigarAiKey() {
     return Boolean(process.env.OPENROUTER_API_KEY);
@@ -249,6 +253,12 @@ function scoreTextMatch(text: string, terms: string[]) {
     return terms.reduce((score, term) => score + (haystack.includes(term) ? term.length : 0), 0);
 }
 
+function includesTerm(text: string, value?: string | null) {
+    const term = value?.trim().toLowerCase();
+    if (!term) return false;
+    return text.includes(term);
+}
+
 function extractSources(response: OpenRouterResponse) {
     const annotations = response.choices?.[0]?.message?.annotations ?? [];
     const sources = annotations
@@ -326,9 +336,14 @@ export function identifyCigarFromQuery(query: string) {
     });
 }
 
-export async function findSwapMatches(identification: CigarIdentification) {
+export async function findSwapMatches(identification: CigarIdentification): Promise<SwapMatchResults> {
     const terms = buildSearchTerms(identification);
-    if (terms.length === 0) return [];
+    if (terms.length === 0) {
+        return {
+            directMatches: [],
+            suggestedMatches: [],
+        };
+    }
 
     const orFilters = terms.flatMap((term) => [
         { offeringName: { contains: term, mode: "insensitive" as const } },
@@ -348,9 +363,11 @@ export async function findSwapMatches(identification: CigarIdentification) {
         orderBy: { createdAt: "desc" },
     });
 
-    return listings
+    const scoredListings = listings
         .map((listing) => ({
             listing,
+            offeringNameLower: listing.offeringName.toLowerCase(),
+            wantDescriptionLower: listing.wantDescription.toLowerCase(),
             score:
                 scoreTextMatch(listing.offeringName, terms) * 2 +
                 scoreTextMatch(listing.wantDescription, terms) +
@@ -358,8 +375,47 @@ export async function findSwapMatches(identification: CigarIdentification) {
         }))
         .filter((entry) => entry.score > 0)
         .sort((a, b) => b.score - a.score)
-        .slice(0, 6)
+        .map((entry) => ({
+            ...entry,
+            mentionsBrand:
+                includesTerm(entry.offeringNameLower, identification.brand) ||
+                includesTerm(entry.wantDescriptionLower, identification.brand),
+            mentionsLine:
+                includesTerm(entry.offeringNameLower, identification.line) ||
+                includesTerm(entry.wantDescriptionLower, identification.line),
+            mentionsVitola:
+                includesTerm(entry.offeringNameLower, identification.vitola) ||
+                includesTerm(entry.wantDescriptionLower, identification.vitola),
+            mentionsWrapper:
+                includesTerm(entry.offeringNameLower, identification.wrapper) ||
+                includesTerm(entry.wantDescriptionLower, identification.wrapper),
+        }));
+
+    const directMatches = scoredListings
+        .filter(
+            (entry) =>
+                (entry.mentionsBrand && entry.mentionsLine) ||
+                (entry.mentionsBrand && entry.mentionsVitola) ||
+                entry.score >= 20
+        )
+        .slice(0, 4)
         .map((entry) => entry.listing);
+
+    const takenIds = new Set(directMatches.map((listing) => listing.id));
+
+    const suggestedMatches = scoredListings
+        .filter(
+            (entry) =>
+                !takenIds.has(entry.listing.id) &&
+                (entry.score >= 8 || (entry.mentionsBrand && entry.mentionsWrapper) || entry.mentionsLine)
+        )
+        .slice(0, 4)
+        .map((entry) => entry.listing);
+
+    return {
+        directMatches,
+        suggestedMatches,
+    };
 }
 
 export async function findExternalBuyOptions(identification: CigarIdentification, location?: string) {

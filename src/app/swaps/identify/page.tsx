@@ -42,6 +42,7 @@ interface ExternalResults {
 interface IdentifyResponse {
     identification: IdentificationResult;
     swapMatches: SwapListingData[];
+    similarSwapMatches: SwapListingData[];
     mode: "vision" | "manual";
 }
 
@@ -53,6 +54,7 @@ interface MarketResponse {
 interface ScoutResponse {
     identification: IdentificationResult;
     swapMatches: SwapListingData[];
+    similarSwapMatches: SwapListingData[];
     external: ExternalResults | null;
     identifyMode: "vision" | "manual";
     marketMode: "vision" | "manual" | null;
@@ -166,6 +168,7 @@ export default function IdentifyCigarPage() {
             setResult({
                 identification: nextResult.identification,
                 swapMatches: nextResult.swapMatches,
+                similarSwapMatches: nextResult.similarSwapMatches,
                 external: null,
                 identifyMode: nextResult.mode,
                 marketMode: null,
@@ -428,7 +431,11 @@ export default function IdentifyCigarPage() {
                             <div className={styles.sectionHead}>
                                 <h3 className={styles.sectionTitle}>Swap options in Cigar Swap</h3>
                                 <span className={styles.sectionHint}>
-                                    {result.swapMatches.length > 0 ? `${result.swapMatches.length} matching listings` : "No close listings yet"}
+                                    {result.swapMatches.length > 0
+                                        ? `${result.swapMatches.length} strong matches`
+                                        : result.similarSwapMatches.length > 0
+                                            ? `${result.similarSwapMatches.length} similar options`
+                                            : "No close listings yet"}
                                 </span>
                             </div>
                             {result.swapMatches.length > 0 ? (
@@ -439,10 +446,33 @@ export default function IdentifyCigarPage() {
                                 </div>
                             ) : (
                                 <div className={styles.emptyState}>
-                                    No open swap listings matched this cigar yet. You can still use the buy options below or create a new listing once you have it.
+                                    No open swap listings matched this exact cigar yet. You can still browse the similar options below or create a new listing once you have it.
                                 </div>
                             )}
                         </section>
+
+                        {result.similarSwapMatches.length > 0 && (
+                            <section className={styles.section}>
+                                <div className={styles.sectionHead}>
+                                    <div>
+                                        <span className={styles.sectionEyebrow}>
+                                            {result.swapMatches.length > 0 ? "Similar" : "You might also be interested in"}
+                                        </span>
+                                        <h3 className={styles.sectionTitle}>
+                                            {result.swapMatches.length > 0 ? "Similar swap options" : "Other swap options to explore"}
+                                        </h3>
+                                    </div>
+                                    <span className={styles.sectionHint}>
+                                        Nearby matches based on brand, line, wrapper, or vitola
+                                    </span>
+                                </div>
+                                <div className={styles.swapList}>
+                                    {result.similarSwapMatches.map((listing) => (
+                                        <SwapCard key={listing.id} listing={listing} />
+                                    ))}
+                                </div>
+                            </section>
+                        )}
 
                         <section className={styles.section}>
                             <div className={styles.sectionHead}>
