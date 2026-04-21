@@ -45,6 +45,10 @@ export type ExternalBuyOptions = z.infer<typeof externalResultsSchema> & {
     sources: { title: string; url: string }[];
 };
 
+export function hasOpenAIKey() {
+    return Boolean(process.env.OPENAI_API_KEY);
+}
+
 function getOpenAIKey() {
     const apiKey = process.env.OPENAI_API_KEY;
     if (!apiKey) {
@@ -81,11 +85,10 @@ function extractOutputText(response: Record<string, unknown>) {
 
     for (const item of output) {
         if (!item || typeof item !== "object") continue;
-        const content = Array.isArray((item as { content?: unknown }).content)
-            ? (item as { content?: Array<{ text?: string; type?: string }> }).content
-            : [];
+        const rawContent = (item as { content?: unknown }).content;
+        if (!Array.isArray(rawContent)) continue;
 
-        for (const part of content) {
+        for (const part of rawContent as Array<{ text?: string; type?: string }>) {
             if (part?.type === "output_text" && typeof part.text === "string") {
                 textParts.push(part.text);
             }
@@ -213,6 +216,25 @@ export async function identifyCigarFromImages(images: string[]) {
     return identifySchema.parse(parseJson<CigarIdentification>(extractOutputText(identifyResponse)));
 }
 
+export function identifyCigarFromQuery(query: string) {
+    const cleaned = query.trim().replace(/\s+/g, " ");
+    const parts = cleaned.split(" ").filter(Boolean);
+    const brand = parts[0] ?? cleaned;
+    const line = parts.length > 1 ? parts.slice(1, Math.min(parts.length, 4)).join(" ") : null;
+
+    return identifySchema.parse({
+        displayName: cleaned,
+        brand,
+        line,
+        vitola: null,
+        wrapper: null,
+        bandText: [],
+        confidence: 0.38,
+        notes: "Manual search mode was used, so this result is based on your text query rather than image analysis.",
+        alternateCandidates: [],
+    });
+}
+
 export async function findSwapMatches(identification: CigarIdentification) {
     const terms = buildSearchTerms(identification);
     if (terms.length === 0) return [];
@@ -295,5 +317,61 @@ export async function findExternalBuyOptions(identification: CigarIdentification
     return {
         ...parsed,
         sources: extractSources(searchResponse),
+    };
+}
+
+export function buildManualBuyOptions(identification: CigarIdentification, location?: string): ExternalBuyOptions {
+    const cigarName = identification.displayName;
+    const encodedName = encodeURIComponent(cigarName);
+    const encodedLocation = encodeURIComponent(location?.trim() || "");
+
+    const retailers = [
+        {
+            name: "Small Batch Cigars search",
+            url: `https://www.smallbatchcigar.com/search?type=product&q=${encodedName}`,
+            price: null,
+            availability: null,
+            notes: "Search this retailer directly for live inventory.",
+        },
+        {
+            name: "Cigars International search",
+            url: `https://www.cigarsinternational.com/shop/?q=${encodedName}`,
+            price: null,
+            availability: null,
+            notes: "Search this retailer directly for current listings.",
+        },
+        {
+            name: "Famous Smoke search",
+            url: `https://www.famous-smoke.com/search/${encodedName}`,
+            price: null,
+            availability: null,
+            notes: "Search this retailer directly for matching cigars.",
+        },
+    ];
+
+    const localShops = location?.trim()
+        ? [
+              {
+                  name: "Google Maps cigar shop search",
+                  url: `https://www.google.com/maps/search/cigar+shop+${encodedLocation}`,
+                  address: location.trim(),
+                  phone: null,
+                  notes: `Open nearby cigar shops around ${location.trim()} and call ahead for ${cigarName}.`,
+              },
+          ]
+        : [];
+
+    const sources = [
+        { title: "Small Batch Cigars", url: retailers[0].url },
+        { title: "Cigars International", url: retailers[1].url },
+        { title: "Famous Smoke", url: retailers[2].url },
+        ...(localShops[0]?.url ? [{ title: "Google Maps", url: localShops[0].url }] : []),
+    ];
+
+    return {
+        summary: "Manual search mode is active. Open the retailer or map links below to continue your search.",
+        retailers,
+        localShops,
+        sources,
     };
 }

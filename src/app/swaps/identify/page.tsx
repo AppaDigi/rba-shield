@@ -62,6 +62,7 @@ function fileToDataUrl(file: File) {
 export default function IdentifyCigarPage() {
     const fileInputRef = useRef<HTMLInputElement>(null);
     const [images, setImages] = useState<string[]>([]);
+    const [query, setQuery] = useState("");
     const [searchLocation, setSearchLocation] = useState("");
     const [error, setError] = useState("");
     const [analyzing, setAnalyzing] = useState(false);
@@ -108,7 +109,7 @@ export default function IdentifyCigarPage() {
 
     async function analyzeCigar(e: React.FormEvent) {
         e.preventDefault();
-        if (images.length === 0 || analyzing) return;
+        if ((images.length === 0 && !query.trim()) || analyzing) return;
 
         setAnalyzing(true);
         setError("");
@@ -120,6 +121,7 @@ export default function IdentifyCigarPage() {
                 headers: { "Content-Type": "application/json" },
                 body: JSON.stringify({
                     images,
+                    query: query.trim() || undefined,
                     searchLocation: searchLocation.trim() || undefined,
                 }),
             });
@@ -165,7 +167,7 @@ export default function IdentifyCigarPage() {
                     <div className={styles.panelHeader}>
                         <div>
                             <h2 className={styles.panelTitle}>Scout a cigar from photos</h2>
-                            <p className={styles.panelMeta}>Up to 3 images. Add a city or ZIP if you want nearby shop suggestions.</p>
+                            <p className={styles.panelMeta}>Up to 3 images. Or skip photos and search by cigar name. Add a city or ZIP if you want nearby shop suggestions.</p>
                         </div>
                         <button
                             type="button"
@@ -211,6 +213,18 @@ export default function IdentifyCigarPage() {
 
                     <div className={styles.controls}>
                         <label className={styles.field}>
+                            <span>Manual cigar search</span>
+                            <div className={styles.inputWrap}>
+                                <Search size={15} />
+                                <input
+                                    value={query}
+                                    onChange={(e) => setQuery(e.target.value)}
+                                    placeholder="Padron 1964 Anniversary Exclusivo"
+                                    className={styles.input}
+                                />
+                            </div>
+                        </label>
+                        <label className={styles.field}>
                             <span>Search nearby shops</span>
                             <div className={styles.inputWrap}>
                                 <MapPin size={15} />
@@ -227,7 +241,7 @@ export default function IdentifyCigarPage() {
                     {error && <div className={styles.error}>{error}</div>}
 
                     <div className={styles.actions}>
-                        <button type="submit" className={styles.analyzeBtn} disabled={images.length === 0 || analyzing}>
+                        <button type="submit" className={styles.analyzeBtn} disabled={(images.length === 0 && !query.trim()) || analyzing}>
                             {analyzing ? <Loader2 size={16} className={styles.spinner} /> : <Search size={16} />}
                             {analyzing ? "Analyzing cigar..." : "Analyze cigar"}
                         </button>

@@ -1,10 +1,26 @@
 import { NextRequest, NextResponse } from "next/server";
-import { findExternalBuyOptions, findSwapMatches, identifyCigarFromImages } from "@/lib/cigar-scout";
+import {
+    buildManualBuyOptions,
+    findExternalBuyOptions,
+    findSwapMatches,
+    hasOpenAIKey,
+    identifyCigarFromImages,
+    identifyCigarFromQuery,
+} from "@/lib/cigar-scout";
 import { z } from "zod";
 
 const requestSchema = z.object({
-    images: z.array(z.string().startsWith("data:image/")).min(1).max(3),
+    images: z.array(z.string().startsWith("data:image/")).max(3).default([]),
+    query: z.string().max(200).optional(),
     searchLocation: z.string().max(120).optional(),
+}).superRefine((value, ctx) => {
+    if (value.images.length === 0 && !value.query?.trim()) {
+        ctx.addIssue({
+            code: z.ZodIssueCode.custom,
+            message: "Upload images or enter a cigar name to search.",
+            path: ["images"],
+        });
+    }
 });
 
 export async function POST(req: NextRequest) {
@@ -13,20 +29,27 @@ export async function POST(req: NextRequest) {
         const parsed = requestSchema.safeParse(body);
 
         if (!parsed.success) {
-            return NextResponse.json({ error: "Upload 1 to 3 images to analyze." }, { status: 400 });
+            return NextResponse.json({ error: "Upload images or enter a cigar name to search." }, { status: 400 });
         }
 
-        const { images, searchLocation } = parsed.data;
-        const identification = await identifyCigarFromImages(images);
+        const { images, query, searchLocation } = parsed.data;
+        const canUseVision = images.length > 0 && hasOpenAIKey();
+        const identification = canUseVision
+            ? await identifyCigarFromImages(images)
+            : identifyCigarFromQuery(query?.trim() || "Unknown cigar");
+
         const [swapMatches, external] = await Promise.all([
             findSwapMatches(identification),
-            findExternalBuyOptions(identification, searchLocation),
+            canUseVision
+                ? findExternalBuyOptions(identification, searchLocation)
+                : Promise.resolve(buildManualBuyOptions(identification, searchLocation)),
         ]);
 
         return NextResponse.json({
             identification,
             swapMatches,
             external,
+            mode: canUseVision ? "vision" : "manual",
         });
     } catch (error) {
         console.error("[CIGAR_IDENTIFY]", error);
