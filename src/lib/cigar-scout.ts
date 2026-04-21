@@ -296,12 +296,17 @@ export async function identifyCigarFromImages(images: string[]) {
         plugins: [{ id: "response-healing" }],
         messages: [
             {
+                role: "system",
+                content:
+                    "You are a cigar identification expert. Your job is to read the band and packaging in photos and match them to real, commercially available cigars. You must NEVER invent, fabricate, or guess a brand or product name. Every brand and line you return must be a real cigar brand that actually exists and is sold commercially. If you cannot read the band text clearly, say so in notes and set confidence below 0.4. If the image is blurry, too dark, or the band is not visible, set confidence to 0.1 and explain what you can see. Do not fill in fields you cannot directly read from the image.",
+            },
+            {
                 role: "user",
                 content: [
                     {
                         type: "text",
                         text:
-                            "You identify cigars from photos. Return JSON only with keys displayName, brand, line, vitola, wrapper, bandText, confidence, notes, alternateCandidates. Confidence must be between 0 and 1. bandText must be an array of text seen on cigar bands or packaging. alternateCandidates should include up to 3 objects with displayName and reason. If uncertain, still provide the best guess and explain why.",
+                            "Identify the cigar in these photos. Rules: (1) Only use brand and line names you can READ from the band or packaging text — do not guess or invent names. (2) bandText must contain only text you can literally see on the band or box — copy it exactly as written. (3) brand must exactly match a real cigar brand (e.g. Padron, Arturo Fuente, Rocky Patel, Liga Privada, Oliva, Cohiba, Montecristo, Romeo y Julieta, CAO, Davidoff, etc.). (4) If you cannot confirm the brand from visible text, set brand to null and confidence below 0.4. (5) alternateCandidates should only list real brands you genuinely considered based on visual evidence. (6) Never fabricate a company name — if you are not sure, use null. Return JSON with keys: displayName, brand, line, vitola, wrapper, bandText, confidence, notes, alternateCandidates.",
                     },
                     ...images.map((image) => ({
                         type: "image_url",
