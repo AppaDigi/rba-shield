@@ -87,12 +87,12 @@ function LoginContent() {
             >
                 {/* Logo */}
                 <div className={styles.logoArea}>
-                    <h1 className={styles.logo}>CIGAR<br />CONNOISSEUR</h1>
-                    <p className={styles.tagline}>The Connoisseur&rsquo;s Lounge</p>
+                    <h1 className={styles.logo}>CIGAR<br />SWAP</h1>
+                    <p className={styles.tagline}>cigarswap.app</p>
                 </div>
 
                 <h2 className={styles.heading}>Welcome Back</h2>
-                <p className={styles.subheading}>Sign in to continue to The Lounge</p>
+                <p className={styles.subheading}>Sign in to continue to Cigar Swap</p>
 
                 {/* Social Sign-In */}
                 <div className={styles.socialButtons}>
@@ -181,7 +181,7 @@ function LoginContent() {
                 </form>
 
                 <p className={styles.switchLink}>
-                    New to The Lounge?{" "}
+                    New to Cigar Swap?{" "}
                     <Link href="/auth/register" className={styles.link}>
                         Create an account
                     </Link>

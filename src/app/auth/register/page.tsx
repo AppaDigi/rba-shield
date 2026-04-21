@@ -110,11 +110,11 @@ export default function RegisterPage() {
                 transition={{ duration: 0.5, ease: "easeOut" }}
             >
                 <div className={styles.logoArea}>
-                    <h1 className={styles.logo}>CIGAR<br />CONNOISSEUR</h1>
-                    <p className={styles.tagline}>The Connoisseur&rsquo;s Lounge</p>
+                    <h1 className={styles.logo}>CIGAR<br />SWAP</h1>
+                    <p className={styles.tagline}>cigarswap.app</p>
                 </div>
 
-                <h2 className={styles.heading}>Join The Lounge</h2>
+                <h2 className={styles.heading}>Join Cigar Swap</h2>
                 <p className={styles.subheading}>Create your account to begin your journey</p>
 
                 {/* Social sign up */}

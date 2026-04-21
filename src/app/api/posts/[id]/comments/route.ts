@@ -64,7 +64,7 @@ export async function POST(
         actorId: session.user.id,
         content: comment.content,
         entityUrl: `/#post-${postId}`,
-        contextLabel: "in a comment in The Lounge",
+        contextLabel: "in a comment on Cigar Swap",
     });
 
     return NextResponse.json(comment, { status: 201 });

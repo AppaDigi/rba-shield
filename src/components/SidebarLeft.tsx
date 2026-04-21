@@ -57,7 +57,7 @@ export default function SidebarLeft() {
             ) : (
                 <Link href="/auth/login" className={styles.signInBanner}>
                     <LogIn size={18} />
-                    <span>Sign In to The Lounge</span>
+                    <span>Sign In to Cigar Swap</span>
                 </Link>
             )}
 

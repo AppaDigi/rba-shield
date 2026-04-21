@@ -24,7 +24,7 @@ export async function createMentionNotifications({
     actorId,
     content,
     entityUrl,
-    contextLabel = "in The Lounge",
+    contextLabel = "on Cigar Swap",
 }: MentionNotificationArgs) {
     const usernames = extractMentionUsernames(content);
     if (usernames.length === 0) return;

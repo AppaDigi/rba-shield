@@ -80,7 +80,7 @@ export default function ProfilePage() {
                 <div className={styles.notFound}>
                     <h2>User not found</h2>
                     <p>@{username} doesn&apos;t exist or has been removed.</p>
-                    <Link href="/" className={styles.homeLink}>Back to The Lounge</Link>
+                    <Link href="/" className={styles.homeLink}>Back to Cigar Swap</Link>
                 </div>
             </DesktopLayout>
         );

@@ -7,8 +7,9 @@ const playfair = Playfair_Display({ subsets: ["latin"], variable: "--font-playfa
 const inter = Inter({ subsets: ["latin"], variable: "--font-inter" });
 
 export const metadata: Metadata = {
-  title: "The Connoisseur's Lounge",
-  description: "Exquisite Cigars. Live Auctions. Exclusive Company.",
+  metadataBase: new URL("https://cigarswap.app"),
+  title: "Cigar Swap",
+  description: "Discover, trade, and follow premium cigars at Cigar Swap.",
 };
 
 export default function RootLayout({

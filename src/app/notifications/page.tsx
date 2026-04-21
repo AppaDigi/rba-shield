@@ -68,7 +68,7 @@ export default function NotificationsPage() {
                 <div className={styles.header}>
                     <div>
                         <h1 className={styles.title}>Notifications</h1>
-                        <p className={styles.subtitle}>Mentions, reactions, and activity from around The Lounge.</p>
+                        <p className={styles.subtitle}>Mentions, reactions, and activity from around Cigar Swap.</p>
                     </div>
                     {notifications.length > 0 && (
                         <button className={styles.markAllBtn} onClick={markAllRead}>
@@ -115,7 +115,7 @@ export default function NotificationsPage() {
                     </div>
                 )}
 
-                <Link href="/" className={styles.backLink}>Back to The Lounge</Link>
+                <Link href="/" className={styles.backLink}>Back to Cigar Swap</Link>
             </div>
         </DesktopLayout>
     );

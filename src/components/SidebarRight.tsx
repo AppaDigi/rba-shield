@@ -73,7 +73,7 @@ export default function SidebarRight() {
                         </div>
                     ) : (
                         <p style={{ fontSize: "0.8rem", color: "var(--text-dim)", padding: "0.5rem 0.75rem" }}>
-                            No suggestions right now. Explore The Lounge!
+                            No suggestions right now. Explore Cigar Swap!
                         </p>
                     )}
                 </>

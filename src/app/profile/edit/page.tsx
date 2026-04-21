@@ -146,7 +146,7 @@ export default function EditProfilePage() {
                             className={styles.textarea}
                             maxLength={300}
                             rows={3}
-                            placeholder="Tell The Lounge who you are..."
+                            placeholder="Tell Cigar Swap who you are..."
                         />
                         <span className={styles.charCount}>{form.bio.length}/300</span>
                     </div>

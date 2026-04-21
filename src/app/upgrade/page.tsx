@@ -10,7 +10,7 @@ import styles from "./page.module.css";
 const PLANS = [
     {
         id: "free",
-        name: "The Lounge",
+        name: "Cigar Swap",
         price: "Free",
         period: "forever",
         icon: Leaf,
@@ -37,7 +37,7 @@ const PLANS = [
         color: "#D4AF37",
         description: "For the serious aficionado. Verified status, priority access, and advanced tools.",
         features: [
-            "Everything in The Lounge",
+            "Everything in Cigar Swap",
             "Verified Trader badge",
             "Exclusive auction participation",
             "Priority swap listings",
@@ -67,7 +67,7 @@ const PLANS = [
             "Annual Grand Master smoker invite",
         ],
         cta: "Join Waitlist",
-        ctaHref: "mailto:concierge@humidr.app?subject=Grand Master Waitlist",
+        ctaHref: "mailto:concierge@cigarswap.app?subject=Grand Master Waitlist",
         highlight: false,
     },
 ];

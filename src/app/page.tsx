@@ -128,7 +128,7 @@ export default function Home() {
         <div className={styles.leftSidebarWrapper}>
           <div style={{ position: "sticky", top: 0 }}>
             <div style={{ padding: "1rem 1.5rem", borderBottom: "1px solid var(--border-subtle)" }}>
-              <h1 className={styles.logo}>CIGAR<br />CONNOISSEUR</h1>
+              <h1 className={styles.logo}>CIGAR<br />SWAP</h1>
             </div>
             <SidebarLeft />
           </div>
@@ -141,7 +141,7 @@ export default function Home() {
           <header className={styles.headerWrapper}>
             <div className={styles.headerContent}>
               <div className={styles.brand}>
-                <h1 className={styles.logo}>The Lounge</h1>
+                <h1 className={styles.logo}>Cigar Swap</h1>
                 <span className={styles.tagline}>Connected Tech • Vintage Soul</span>
               </div>
               <div className={styles.controls}>
