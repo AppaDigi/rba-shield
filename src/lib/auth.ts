@@ -2,6 +2,7 @@ import NextAuth from "next-auth";
 import { PrismaAdapter } from "@auth/prisma-adapter";
 import CredentialsProvider from "next-auth/providers/credentials";
 import GoogleProvider from "next-auth/providers/google";
+import type { Provider } from "next-auth/providers";
 import { prisma } from "@/lib/prisma";
 import bcrypt from "bcryptjs";
 import { z } from "zod";
@@ -11,11 +12,10 @@ const loginSchema = z.object({
     password: z.string().min(1),
 });
 
-const googleAuthEnabled = Boolean(
-    process.env.GOOGLE_CLIENT_ID && process.env.GOOGLE_CLIENT_SECRET
-);
+const googleClientId = process.env.GOOGLE_CLIENT_ID ?? process.env.AUTH_GOOGLE_ID;
+const googleClientSecret = process.env.GOOGLE_CLIENT_SECRET ?? process.env.AUTH_GOOGLE_SECRET;
 
-const providers = [
+const providers: Provider[] = [
     CredentialsProvider({
         name: "credentials",
         credentials: {
@@ -42,29 +42,31 @@ const providers = [
             };
         },
     }),
-    ...(googleAuthEnabled
-        ? [
-              GoogleProvider({
-                  clientId: process.env.GOOGLE_CLIENT_ID!,
-                  clientSecret: process.env.GOOGLE_CLIENT_SECRET!,
-                  profile(profile) {
-                      const rawUsername = (profile.name ?? profile.email.split("@")[0])
-                          .toLowerCase()
-                          .replace(/\s+/g, "_")
-                          .replace(/[^a-z0-9_]/g, "")
-                          .slice(0, 20);
-                      return {
-                          id: profile.sub,
-                          name: profile.name,
-                          email: profile.email,
-                          image: profile.picture,
-                          username: `${rawUsername}_${profile.sub.slice(-4)}`,
-                      };
-                  },
-              }),
-          ]
-        : []),
 ];
+
+if (googleClientId && googleClientSecret) {
+    providers.push(
+        GoogleProvider({
+            clientId: googleClientId,
+            clientSecret: googleClientSecret,
+            profile(profile) {
+                // Auto-generate username from Google display name
+                const rawUsername = (profile.name ?? profile.email.split("@")[0])
+                    .toLowerCase()
+                    .replace(/\s+/g, "_")
+                    .replace(/[^a-z0-9_]/g, "")
+                    .slice(0, 20);
+                return {
+                    id: profile.sub,
+                    name: profile.name,
+                    email: profile.email,
+                    image: profile.picture,
+                    username: `${rawUsername}_${profile.sub.slice(-4)}`,
+                };
+            },
+        })
+    );
+}
 
 export const { handlers, auth, signIn, signOut } = NextAuth({
     adapter: PrismaAdapter(prisma),
@@ -74,6 +76,11 @@ export const { handlers, auth, signIn, signOut } = NextAuth({
         error: "/auth/login",
     },
     providers,
+    // Apple provider - scaffold, disabled until credentials are provided
+    // AppleProvider({
+    //   clientId: process.env.APPLE_CLIENT_ID!,
+    //   clientSecret: process.env.APPLE_CLIENT_SECRET!,
+    // }),
     callbacks: {
         async jwt({ token, user, trigger, session }) {
             if (user) {
