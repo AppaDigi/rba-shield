@@ -17,7 +17,7 @@ export default function DesktopLayout({ children, showRightSidebar = false }: La
             <div className={styles.leftSidebarWrapper}>
                 <div style={{ position: 'sticky', top: 0, height: '100vh', overflowY: 'auto' }}>
                     <div className={styles.logo}>
-                        CIGAR<br /><span className="text-gold text-sm font-normal tracking-wide">CONNOISSEUR</span>
+                        CIGAR<br /><span className="text-gold text-sm font-normal tracking-wide">SWAP</span>
                     </div>
                     <SidebarLeft />
                 </div>

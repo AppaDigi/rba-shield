@@ -54,6 +54,26 @@
     align-items: center;
 }
 
+.scoutBtn {
+    display: flex;
+    align-items: center;
+    gap: 0.35rem;
+    background: rgba(232, 200, 74, 0.12);
+    border: 1px solid rgba(232, 200, 74, 0.25);
+    color: var(--text-primary);
+    font-size: 0.8rem;
+    font-weight: 700;
+    padding: 0.45rem 0.9rem;
+    border-radius: 20px;
+    text-decoration: none;
+    transition: transform 0.15s, border-color 0.2s;
+}
+
+.scoutBtn:hover {
+    transform: translateY(-1px);
+    border-color: rgba(232, 200, 74, 0.45);
+}
+
 .humidorBtn {
     display: flex;
     align-items: center;

@@ -4,7 +4,7 @@ import { useState, useEffect, useCallback, useRef } from "react";
 import DesktopLayout from "@/components/DesktopLayout";
 import Navbar from "@/components/Navbar";
 import SwapCard, { type SwapListingData } from "@/components/SwapCard";
-import { ArrowLeftRight, Plus, BookOpen, Loader2, X, ImagePlus, Trash2 } from "lucide-react";
+import { ArrowLeftRight, Plus, BookOpen, Loader2, X, ImagePlus, Trash2, Search } from "lucide-react";
 import styles from "./page.module.css";
 import { motion, AnimatePresence } from "framer-motion";
 import { useSession } from "next-auth/react";
@@ -135,6 +135,9 @@ export default function SwapsPage() {
                             <p className={styles.subtitle}>Curated trades for the discerning connoisseur.</p>
                         </div>
                         <div className={styles.headerActions}>
+                            <Link href="/swaps/identify" className={styles.scoutBtn}>
+                                <Search size={15} /> Identify a Cigar
+                            </Link>
                             {session && (
                                 <Link href="/swaps/humidor" className={styles.humidorBtn}>
                                     <BookOpen size={15} /> My Humidor
