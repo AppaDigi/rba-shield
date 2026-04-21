@@ -1,7 +1,5 @@
 import { NextRequest, NextResponse } from "next/server";
 import {
-    buildManualBuyOptions,
-    findExternalBuyOptions,
     findSwapMatches,
     hasCigarAiKey,
     identifyCigarFromImages,
@@ -12,7 +10,6 @@ import { z } from "zod";
 const requestSchema = z.object({
     images: z.array(z.string().startsWith("data:image/")).max(3).default([]),
     query: z.string().max(200).optional(),
-    searchLocation: z.string().max(120).optional(),
 }).superRefine((value, ctx) => {
     if (value.images.length === 0 && !value.query?.trim()) {
         ctx.addIssue({
@@ -32,23 +29,16 @@ export async function POST(req: NextRequest) {
             return NextResponse.json({ error: "Upload images or enter a cigar name to search." }, { status: 400 });
         }
 
-        const { images, query, searchLocation } = parsed.data;
+        const { images, query } = parsed.data;
         const canUseVision = images.length > 0 && hasCigarAiKey();
         const identification = canUseVision
             ? await identifyCigarFromImages(images)
             : identifyCigarFromQuery(query?.trim() || "Unknown cigar");
-
-        const [swapMatches, external] = await Promise.all([
-            findSwapMatches(identification),
-            canUseVision
-                ? findExternalBuyOptions(identification, searchLocation)
-                : Promise.resolve(buildManualBuyOptions(identification, searchLocation)),
-        ]);
+        const swapMatches = await findSwapMatches(identification);
 
         return NextResponse.json({
             identification,
             swapMatches,
-            external,
             mode: canUseVision ? "vision" : "manual",
         });
     } catch (error) {

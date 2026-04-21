@@ -2,6 +2,7 @@
 
 import { useMemo, useRef, useState } from "react";
 import Link from "next/link";
+import Image from "next/image";
 import { Camera, ExternalLink, Loader2, MapPin, Search, Sparkles, Store, Upload, X } from "lucide-react";
 import DesktopLayout from "@/components/DesktopLayout";
 import SwapCard, { type SwapListingData } from "@/components/SwapCard";
@@ -38,10 +39,23 @@ interface ExternalResults {
     sources: { title: string; url: string }[];
 }
 
+interface IdentifyResponse {
+    identification: IdentificationResult;
+    swapMatches: SwapListingData[];
+    mode: "vision" | "manual";
+}
+
+interface MarketResponse {
+    external: ExternalResults;
+    mode: "vision" | "manual";
+}
+
 interface ScoutResponse {
     identification: IdentificationResult;
     swapMatches: SwapListingData[];
-    external: ExternalResults;
+    external: ExternalResults | null;
+    identifyMode: "vision" | "manual";
+    marketMode: "vision" | "manual" | null;
 }
 
 const MAX_FILES = 3;
@@ -61,11 +75,14 @@ function fileToDataUrl(file: File) {
 
 export default function IdentifyCigarPage() {
     const fileInputRef = useRef<HTMLInputElement>(null);
+    const requestIdRef = useRef(0);
     const [images, setImages] = useState<string[]>([]);
     const [query, setQuery] = useState("");
     const [searchLocation, setSearchLocation] = useState("");
     const [error, setError] = useState("");
-    const [analyzing, setAnalyzing] = useState(false);
+    const [marketError, setMarketError] = useState("");
+    const [identifying, setIdentifying] = useState(false);
+    const [marketLoading, setMarketLoading] = useState(false);
     const [result, setResult] = useState<ScoutResponse | null>(null);
 
     const confidenceLabel = useMemo(() => {
@@ -74,6 +91,9 @@ export default function IdentifyCigarPage() {
         if (confidence >= 0.65) return "Good confidence";
         return "Best guess";
     }, [result]);
+
+    const busy = identifying || marketLoading;
+    const progressTone = identifying ? "identify" : marketLoading ? "market" : "idle";
 
     async function handleFiles(e: React.ChangeEvent<HTMLInputElement>) {
         const pickedFiles = Array.from(e.target.files ?? []);
@@ -109,34 +129,90 @@ export default function IdentifyCigarPage() {
 
     async function analyzeCigar(e: React.FormEvent) {
         e.preventDefault();
-        if ((images.length === 0 && !query.trim()) || analyzing) return;
+        if ((images.length === 0 && !query.trim()) || busy) return;
 
-        setAnalyzing(true);
+        const requestId = requestIdRef.current + 1;
+        requestIdRef.current = requestId;
+
+        setIdentifying(true);
+        setMarketLoading(false);
         setError("");
+        setMarketError("");
         setResult(null);
 
+        let identified = false;
+
         try {
-            const res = await fetch("/api/cigar/identify", {
+            const identifyRes = await fetch("/api/cigar/identify", {
                 method: "POST",
                 headers: { "Content-Type": "application/json" },
                 body: JSON.stringify({
                     images,
                     query: query.trim() || undefined,
+                }),
+            });
+
+            const identifyData = (await identifyRes.json()) as IdentifyResponse | { error?: string };
+            if (requestIdRef.current !== requestId) return;
+
+            if (!identifyRes.ok) {
+                setError((identifyData as { error?: string }).error ?? "Could not analyze this cigar.");
+                return;
+            }
+
+            identified = true;
+            const nextResult = identifyData as IdentifyResponse;
+
+            setResult({
+                identification: nextResult.identification,
+                swapMatches: nextResult.swapMatches,
+                external: null,
+                identifyMode: nextResult.mode,
+                marketMode: null,
+            });
+            setIdentifying(false);
+            setMarketLoading(true);
+
+            const marketRes = await fetch("/api/cigar/market", {
+                method: "POST",
+                headers: { "Content-Type": "application/json" },
+                body: JSON.stringify({
+                    identification: nextResult.identification,
                     searchLocation: searchLocation.trim() || undefined,
                 }),
             });
 
-            const data = (await res.json()) as ScoutResponse | { error?: string };
-            if (!res.ok) {
-                setError((data as { error?: string }).error ?? "Could not analyze this cigar.");
+            const marketData = (await marketRes.json()) as MarketResponse | { error?: string };
+            if (requestIdRef.current !== requestId) return;
+
+            if (!marketRes.ok) {
+                setMarketError((marketData as { error?: string }).error ?? "Could not load live buy options right now.");
                 return;
             }
 
-            setResult(data as ScoutResponse);
+            const resolvedMarket = marketData as MarketResponse;
+            setResult((current) =>
+                current
+                    ? {
+                          ...current,
+                          external: resolvedMarket.external,
+                          marketMode: resolvedMarket.mode,
+                      }
+                    : current
+            );
         } catch {
-            setError("Could not analyze this cigar right now.");
+            if (requestIdRef.current !== requestId) return;
+
+            if (identified) {
+                setMarketError("Could not load live buy options right now.");
+            } else {
+                setError("Could not analyze this cigar right now.");
+            }
         } finally {
-            setAnalyzing(false);
+            if (requestIdRef.current === requestId) {
+                setIdentifying(false);
+                setMarketLoading(false);
+            }
         }
     }
 
@@ -173,7 +249,7 @@ export default function IdentifyCigarPage() {
                             type="button"
                             className={styles.uploadBtn}
                             onClick={() => fileInputRef.current?.click()}
-                            disabled={images.length >= MAX_FILES}
+                            disabled={images.length >= MAX_FILES || busy}
                         >
                             <Upload size={15} />
                             Add Photo
@@ -193,8 +269,8 @@ export default function IdentifyCigarPage() {
                         {images.length > 0 ? (
                             images.map((image, index) => (
                                 <div key={image} className={styles.previewCard}>
-                                    <img src={image} alt={`Upload ${index + 1}`} className={styles.previewImage} />
-                                    <button type="button" className={styles.removeBtn} onClick={() => removeImage(index)}>
+                                    <Image src={image} alt={`Upload ${index + 1}`} className={styles.previewImage} fill unoptimized />
+                                    <button type="button" className={styles.removeBtn} onClick={() => removeImage(index)} disabled={busy}>
                                         <X size={14} />
                                     </button>
                                 </div>
@@ -204,6 +280,7 @@ export default function IdentifyCigarPage() {
                                 type="button"
                                 className={styles.emptyDropzone}
                                 onClick={() => fileInputRef.current?.click()}
+                                disabled={busy}
                             >
                                 <Sparkles size={20} />
                                 <span>Upload the cigar, its band, or the box lid.</span>
@@ -238,12 +315,47 @@ export default function IdentifyCigarPage() {
                         </label>
                     </div>
 
+                    {(busy || result) && (
+                        <div className={styles.progressRail}>
+                            <div
+                                className={[
+                                    styles.progressStep,
+                                    (result || identifying || marketLoading) && styles.progressDone,
+                                    progressTone === "identify" && styles.progressActive,
+                                ]
+                                    .filter(Boolean)
+                                    .join(" ")}
+                            >
+                                <strong>1. Identify cigar</strong>
+                                <span>{identifying ? "Reading the photos now" : result ? "Cigar match is ready" : "Waiting to start"}</span>
+                            </div>
+                            <div
+                                className={[
+                                    styles.progressStep,
+                                    Boolean(result?.external) && styles.progressDone,
+                                    progressTone === "market" && styles.progressActive,
+                                ]
+                                    .filter(Boolean)
+                                    .join(" ")}
+                            >
+                                <strong>2. Find buy options</strong>
+                                <span>
+                                    {marketLoading
+                                        ? "Checking retailers and nearby shops"
+                                        : result?.external
+                                            ? "Retailer and shop results loaded"
+                                            : "Starts after identification"}
+                                </span>
+                            </div>
+                        </div>
+                    )}
+
                     {error && <div className={styles.error}>{error}</div>}
 
                     <div className={styles.actions}>
-                        <button type="submit" className={styles.analyzeBtn} disabled={(images.length === 0 && !query.trim()) || analyzing}>
-                            {analyzing ? <Loader2 size={16} className={styles.spinner} /> : <Search size={16} />}
-                            {analyzing ? "Analyzing cigar..." : "Analyze cigar"}
+                        <button type="submit" className={styles.analyzeBtn} disabled={(images.length === 0 && !query.trim()) || busy}>
+                            {(identifying || marketLoading) ? <Loader2 size={16} className={styles.spinner} /> : <Search size={16} />}
+                            {identifying ? "Identifying cigar..." : marketLoading ? "Finding buy options..." : "Analyze cigar"}
                         </button>
                     </div>
                 </form>
@@ -256,6 +368,13 @@ export default function IdentifyCigarPage() {
                                 <h2 className={styles.resultTitle}>{result.identification.displayName}</h2>
                                 <p className={styles.resultSummary}>
                                     {result.identification.notes || "This is the strongest match from the uploaded photos."}
+                                </p>
+                                <p className={styles.phaseNote}>
+                                    {result.identifyMode === "manual"
+                                        ? "Manual text mode was used for identification."
+                                        : marketLoading
+                                            ? "Identification is finished. Live retailer and local shop lookup is still running."
+                                            : "Image-based identification finished successfully."}
                                 </p>
                             </div>
                             <div className={styles.confidenceCard}>
@@ -328,9 +447,16 @@ export default function IdentifyCigarPage() {
                         <section className={styles.section}>
                             <div className={styles.sectionHead}>
                                 <h3 className={styles.sectionTitle}>Buy online</h3>
-                                <span className={styles.sectionHint}>Web-backed retailer suggestions</span>
+                                <span className={styles.sectionHint}>
+                                    {marketLoading ? "Searching live retailer pages" : result.marketMode === "manual" ? "Manual retailer links" : "Web-backed retailer suggestions"}
+                                </span>
                             </div>
-                            {result.external.retailers.length > 0 ? (
+                            {marketLoading && !result.external ? (
+                                <div className={styles.loadingCard}>
+                                    <Loader2 size={16} className={styles.spinner} />
+                                    <span>Finding trusted online retailers for this cigar...</span>
+                                </div>
+                            ) : result.external && result.external.retailers.length > 0 ? (
                                 <div className={styles.marketGrid}>
                                     {result.external.retailers.map((retailer) => (
                                         <a key={retailer.url} href={retailer.url} target="_blank" rel="noreferrer" className={styles.marketCard}>
@@ -358,7 +484,12 @@ export default function IdentifyCigarPage() {
                                     {searchLocation.trim() ? `Near ${searchLocation.trim()}` : "Add a city or ZIP to unlock local results"}
                                 </span>
                             </div>
-                            {result.external.localShops.length > 0 ? (
+                            {marketLoading && !result.external ? (
+                                <div className={styles.loadingCard}>
+                                    <Loader2 size={16} className={styles.spinner} />
+                                    <span>Checking nearby cigar shops and lounges...</span>
+                                </div>
+                            ) : result.external && result.external.localShops.length > 0 ? (
                                 <div className={styles.marketGrid}>
                                     {result.external.localShops.map((shop) => (
                                         <div key={`${shop.name}-${shop.address}`} className={styles.marketCard}>
@@ -386,7 +517,16 @@ export default function IdentifyCigarPage() {
                             )}
                         </section>
 
-                        {result.external.sources.length > 0 && (
+                        {marketError && <div className={styles.error}>{marketError}</div>}
+
+                        {result.external?.summary && (
+                            <section className={styles.section}>
+                                <h3 className={styles.sectionTitle}>Market summary</h3>
+                                <p className={styles.resultSummary}>{result.external.summary}</p>
+                            </section>
+                        )}
+
+                        {result.external && result.external.sources.length > 0 && (
                             <section className={styles.section}>
                                 <h3 className={styles.sectionTitle}>Sources checked</h3>
                                 <div className={styles.sourceList}>
