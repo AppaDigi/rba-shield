@@ -1,4 +1,5 @@
 import styles from "./page.module.css";
+import { FadeIn, StaggerContainer, StaggerItem } from "@/components/ui/FadeIn";
 
 export const metadata = {
   title: "RBA Shield — GAL Protection. Member Power.",
@@ -76,7 +77,7 @@ export default function ShieldPage() {
 
       {/* ── Hero ── */}
       <div className={styles.hero}>
-        <div className={styles.heroLeft}>
+        <FadeIn className={styles.heroLeft} delay={0.1}>
           <div className={styles.heroRule} />
           <div className={styles.heroEyebrow}>GAL Protection · Member Power</div>
           <h1 className={styles.heroTitle}>
@@ -96,9 +97,9 @@ export default function ShieldPage() {
             <a href="#join" className={styles.btnGold}>Take Up Your Shield</a>
             <a href="#the-program" className={styles.btnGhost}>Learn About The Program</a>
           </div>
-        </div>
+        </FadeIn>
 
-        <div className={styles.heroPanel}>
+        <FadeIn className={styles.heroPanel} delay={0.3}>
           <div className={styles.heroPanelLabel}>Program Overview</div>
           <div className={styles.heroPanelStats}>
             <div className={styles.heroPanelStat}>
@@ -119,11 +120,11 @@ export default function ShieldPage() {
             <span className={styles.heroPanelQuoteMark}>&ldquo;</span>
             Stronger Together. Protected Always.
           </p>
-        </div>
+        </FadeIn>
       </div>
 
       {/* ── Quote Band ── */}
-      <div className={styles.dividerBand}>
+      <FadeIn className={styles.dividerBand} yOffset={20}>
         <span className={styles.dividerBandText}>
           <span className={styles.dividerBandMark}>◆&ensp;</span>
           C&amp;D letters &amp; demand responses
@@ -135,24 +136,26 @@ export default function ShieldPage() {
           Growing legal endowment
           <span className={styles.dividerBandMark}>&ensp;◆</span>
         </span>
-      </div>
+      </FadeIn>
 
       {/* ── The Problem ── */}
       <section id="the-problem" className={styles.sectionFull}>
         <div className={styles.sectionFullInner}>
-          <div className={styles.sectionEyebrow}>The Problem</div>
-          <h2 className={styles.sectionTitle}>
-            The Legal System Is Being Used<br />
-            as a Weapon Against Believers
-          </h2>
-          <p className={styles.sectionBody}>
-            Christian business owners face a hostile legal climate. The cost of
-            defending your convictions — or simply responding to a threat —
-            puts justice out of reach for most.
-          </p>
+          <FadeIn>
+            <div className={styles.sectionEyebrow}>The Problem</div>
+            <h2 className={styles.sectionTitle}>
+              The Legal System Is Being Used<br />
+              as a Weapon Against Believers
+            </h2>
+            <p className={styles.sectionBody}>
+              Christian business owners face a hostile legal climate. The cost of
+              defending your convictions — or simply responding to a threat —
+              puts justice out of reach for most.
+            </p>
+          </FadeIn>
 
-          <div className={styles.problemGrid}>
-            <div className={styles.problemItem}>
+          <StaggerContainer className={styles.problemGrid}>
+            <StaggerItem className={styles.problemItem}>
               <div className={styles.problemItemNum}>01</div>
               <div className={styles.problemItemTitle}>Prohibitive Cost of Defense</div>
               <p className={styles.problemItemBody}>
@@ -160,8 +163,8 @@ export default function ShieldPage() {
                 cease-and-desist response can exceed a month of revenue for a
                 small business — before any litigation begins.
               </p>
-            </div>
-            <div className={styles.problemItem}>
+            </StaggerItem>
+            <StaggerItem className={styles.problemItem}>
               <div className={styles.problemItemNum}>02</div>
               <div className={styles.problemItemTitle}>Legal Threats as Coercion</div>
               <p className={styles.problemItemBody}>
@@ -169,8 +172,8 @@ export default function ShieldPage() {
                 cannot afford to fight back. Compliance is extracted through
                 financial intimidation, not merit.
               </p>
-            </div>
-            <div className={styles.problemItem}>
+            </StaggerItem>
+            <StaggerItem className={styles.problemItem}>
               <div className={styles.problemItemNum}>03</div>
               <div className={styles.problemItemTitle}>Isolated and Outspent</div>
               <p className={styles.problemItemBody}>
@@ -178,8 +181,8 @@ export default function ShieldPage() {
                 — divided and dwarfed by well-funded opposition with
                 institutional legal infrastructure.
               </p>
-            </div>
-            <div className={styles.problemItem}>
+            </StaggerItem>
+            <StaggerItem className={styles.problemItem}>
               <div className={styles.problemItemNum}>04</div>
               <div className={styles.problemItemTitle}>A Silenced Marketplace</div>
               <p className={styles.problemItemBody}>
@@ -187,22 +190,24 @@ export default function ShieldPage() {
                 self-censor, forfeit convictions, and operate as if the
                 First Amendment does not apply to commerce.
               </p>
-            </div>
-          </div>
+            </StaggerItem>
+          </StaggerContainer>
         </div>
       </section>
 
       {/* ── The Program ── */}
       <section id="the-program" className={styles.section}>
-        <div className={styles.sectionEyebrow}>The Program</div>
-        <h2 className={styles.sectionTitle}>A Two-Fold Defense</h2>
-        <p className={styles.sectionBody}>
-          RBA Shield combines a growing financial endowment with human capital —
-          attorneys across the country who share your values and stand ready to act.
-        </p>
+        <FadeIn>
+          <div className={styles.sectionEyebrow}>The Program</div>
+          <h2 className={styles.sectionTitle}>A Two-Fold Defense</h2>
+          <p className={styles.sectionBody}>
+            RBA Shield combines a growing financial endowment with human capital —
+            attorneys across the country who share your values and stand ready to act.
+          </p>
+        </FadeIn>
 
         <div className={styles.pillarWrap}>
-          <div className={styles.pillar}>
+          <FadeIn className={styles.pillar}>
             <div className={styles.pillarNumeral}>I</div>
             <div>
               <div className={styles.pillarTag}>Financial Strength</div>
@@ -221,9 +226,9 @@ export default function ShieldPage() {
                 <li className={styles.pillarListItem}><DiamondMark />Governed by RBA leadership with member accountability</li>
               </ul>
             </div>
-          </div>
+          </FadeIn>
 
-          <div className={styles.pillar}>
+          <FadeIn className={styles.pillar} delay={0.2}>
             <div className={styles.pillarNumeral}>II</div>
             <div>
               <div className={styles.pillarTag}>Human Capital</div>
@@ -241,18 +246,20 @@ export default function ShieldPage() {
                 <li className={styles.pillarListItem}><DiamondMark />Geographic matching to connect you with local counsel</li>
               </ul>
             </div>
-          </div>
+          </FadeIn>
         </div>
       </section>
 
       {/* ── How It Works ── */}
       <section className={styles.sectionFull}>
         <div className={styles.sectionFullInner}>
-          <div className={styles.sectionEyebrow}>The Process</div>
-          <h2 className={styles.sectionTitle}>Simple. Coordinated. Effective.</h2>
+          <FadeIn>
+            <div className={styles.sectionEyebrow}>The Process</div>
+            <h2 className={styles.sectionTitle}>Simple. Coordinated. Effective.</h2>
+          </FadeIn>
 
-          <div className={styles.stepsWrap}>
-            <div className={styles.step}>
+          <StaggerContainer className={styles.stepsWrap}>
+            <StaggerItem className={styles.step}>
               <span className={styles.stepNum}>01</span>
               <div className={styles.stepRule} />
               <div className={styles.stepTitle}>Join &amp; Contribute</div>
@@ -261,8 +268,8 @@ export default function ShieldPage() {
                 the endowment and grants full access to the attorney network
                 for the year.
               </p>
-            </div>
-            <div className={styles.step}>
+            </StaggerItem>
+            <StaggerItem className={styles.step}>
               <span className={styles.stepNum}>02</span>
               <div className={styles.stepRule} />
               <div className={styles.stepTitle}>Submit Your Need</div>
@@ -271,8 +278,8 @@ export default function ShieldPage() {
                 portal. Shield staff triage and match you with the right
                 attorney for the situation.
               </p>
-            </div>
-            <div className={styles.step}>
+            </StaggerItem>
+            <StaggerItem className={styles.step}>
               <span className={styles.stepNum}>03</span>
               <div className={styles.stepRule} />
               <div className={styles.stepTitle}>Get Defended</div>
@@ -281,23 +288,25 @@ export default function ShieldPage() {
                 letter to full courtroom representation, backed by the
                 endowment when needed.
               </p>
-            </div>
-          </div>
+            </StaggerItem>
+          </StaggerContainer>
         </div>
       </section>
 
       {/* ── For Attorneys ── */}
       <section id="attorneys" className={styles.section}>
-        <div className={styles.sectionEyebrow}>For Attorneys</div>
-        <h2 className={styles.sectionTitle}>Use Your Gift to Defend<br />Your Neighbors</h2>
-        <p className={styles.sectionBody}>
-          Are you an attorney who shares reformed values? Join the network and
-          put your expertise to work for the body of Christ in the marketplace.
-        </p>
+        <FadeIn>
+          <div className={styles.sectionEyebrow}>For Attorneys</div>
+          <h2 className={styles.sectionTitle}>Use Your Gift to Defend<br />Your Neighbors</h2>
+          <p className={styles.sectionBody}>
+            Are you an attorney who shares reformed values? Join the network and
+            put your expertise to work for the body of Christ in the marketplace.
+          </p>
+        </FadeIn>
 
         <div className={styles.attorneysGrid}>
-          <div className={styles.attorneyItems}>
-            <div className={styles.attorneyItem}>
+          <StaggerContainer className={styles.attorneyItems}>
+            <StaggerItem className={styles.attorneyItem}>
               <span className={styles.attorneyItemIcon}><ScaleIcon /></span>
               <div>
                 <div className={styles.attorneyItemTitle}>Minimal Commitment Required</div>
@@ -307,8 +316,8 @@ export default function ShieldPage() {
                   compliance questions.
                 </p>
               </div>
-            </div>
-            <div className={styles.attorneyItem}>
+            </StaggerItem>
+            <StaggerItem className={styles.attorneyItem}>
               <span className={styles.attorneyItemIcon}><GavelIcon /></span>
               <div>
                 <div className={styles.attorneyItemTitle}>High-Stakes Litigation</div>
@@ -318,8 +327,8 @@ export default function ShieldPage() {
                   without carrying the cost alone.
                 </p>
               </div>
-            </div>
-            <div className={styles.attorneyItem}>
+            </StaggerItem>
+            <StaggerItem className={styles.attorneyItem}>
               <span className={styles.attorneyItemIcon}><NetworkIcon /></span>
               <div>
                 <div className={styles.attorneyItemTitle}>A Network of Peers</div>
@@ -329,8 +338,8 @@ export default function ShieldPage() {
                   professional relationships within the alliance.
                 </p>
               </div>
-            </div>
-            <div className={styles.attorneyItem}>
+            </StaggerItem>
+            <StaggerItem className={styles.attorneyItem}>
               <span className={styles.attorneyItemIcon}><HandshakeIcon /></span>
               <div>
                 <div className={styles.attorneyItemTitle}>Values-First Matching</div>
@@ -340,10 +349,10 @@ export default function ShieldPage() {
                   alongside people who share your convictions.
                 </p>
               </div>
-            </div>
-          </div>
+            </StaggerItem>
+          </StaggerContainer>
 
-          <div className={styles.attorneyPanel}>
+          <FadeIn className={styles.attorneyPanel} delay={0.2}>
             <h3 className={styles.attorneyPanelTitle}>Join the Attorney Network</h3>
             <p className={styles.attorneyPanelBody}>
               We are actively recruiting values-aligned attorneys in every
@@ -359,24 +368,24 @@ export default function ShieldPage() {
             >
               Join The Waitlist
             </a>
-          </div>
+          </FadeIn>
         </div>
       </section>
 
       {/* ── Pull Quote ── */}
-      <div className={styles.quoteSection}>
+      <FadeIn className={styles.quoteSection} yOffset={20}>
         <p className={styles.quoteText}>
           <span className={styles.quoteGoldMark}>&ldquo;</span>
           Stronger Together. Protected Always.
           <span className={styles.quoteGoldMark}>&rdquo;</span>
         </p>
         <div className={styles.quoteSource}>Reformed Business Alliance — Shield Program</div>
-      </div>
+      </FadeIn>
 
       {/* ── Join ── */}
       <section id="join" className={styles.section}>
         <div className={styles.pricingWrap}>
-          <div className={styles.pricingIntro}>
+          <FadeIn className={styles.pricingIntro}>
             <div className={styles.sectionEyebrow}>Membership</div>
             <h2 className={styles.sectionTitle}>
               Invest in the<br />Protection We<br />Build Together
@@ -399,9 +408,9 @@ export default function ShieldPage() {
                 Learn about RBA membership &rarr;
               </a>
             </p>
-          </div>
+          </FadeIn>
 
-          <div className={styles.pricingCard}>
+          <FadeIn className={styles.pricingCard} delay={0.2}>
             <div className={styles.pricingCardHeader}>
               <span className={styles.pricingCardBadge}>Annual Shield Membership</span>
               <div className={styles.pricingCardPrice}>
@@ -458,7 +467,7 @@ export default function ShieldPage() {
                 </a>
               </p>
             </div>
-          </div>
+          </FadeIn>
         </div>
       </section>
 

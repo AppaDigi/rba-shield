@@ -1,16 +1,30 @@
 /* RBA Shield — Classic Legal Institution */
 
 :root {
-  --ink:        #0C0A08;
-  --ink-mid:    #161210;
-  --ink-card:   #1C1814;
-  --ink-line:   #2E2620;
-  --gold:       #B8973A;
-  --gold-rule:  rgba(184, 151, 58, 0.35);
-  --gold-dim:   rgba(184, 151, 58, 0.08);
-  --cream:      #EDE8DF;
-  --cream-2:    #9A9088;
-  --cream-3:    #5C564E;
+  /* Core Palette */
+  --ink: #0A0A0A;
+  --deep-navy: #0B1A2B;
+  --slate-navy: #1C2A3A;
+  --warm-white: #F4F1EA;
+  --parchment: #EAE5D8;
+  --primary-blue: #142D4C;
+  --muted-blue: #243F60;
+  --soft-blue: #3A5A7A;
+  --heritage-red: #7A1F1F;
+  --deep-red: #5A1616;
+  --brass: #C2A35D;
+  --muted-gold: #A68B4A;
+
+  /* Base/Legacy Mappings */
+  --ink-mid: var(--deep-navy);
+  --ink-card: var(--slate-navy);
+  --ink-line: var(--primary-blue);
+  --gold: var(--brass);
+  --gold-rule: rgba(194, 163, 93, 0.35); /* #C2A35D */
+  --gold-dim: rgba(194, 163, 93, 0.08);
+  --cream: var(--warm-white);
+  --cream-2: var(--parchment);
+  --cream-3: var(--soft-blue);
 }
 
 /* ── Reset & Base ── */
@@ -108,7 +122,7 @@
 }
 
 .navCta:hover {
-  background: #C9A844;
+  background: var(--muted-gold);
   transform: translateY(-1px);
 }
 
@@ -194,7 +208,7 @@
 }
 
 .btnGold:hover {
-  background: #C9A844;
+  background: var(--muted-gold);
   transform: translateY(-2px);
 }
 
@@ -778,7 +792,7 @@
 }
 
 .pricingCardCta:hover {
-  background: #C9A844;
+  background: var(--muted-gold);
   transform: translateY(-1px);
 }
 
