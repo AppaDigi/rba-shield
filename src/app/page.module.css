@@ -32,7 +32,7 @@
   min-height: 100dvh;
   background: var(--ink);
   color: var(--cream);
-  font-family: var(--font-playfair), 'Playfair Display', Georgia, serif;
+  font-family: var(--font-oswald), 'Oswald', sans-serif;
   overflow-x: hidden;
 }
 
@@ -81,7 +81,7 @@
   letter-spacing: 0.18em;
   text-transform: uppercase;
   color: var(--cream-3);
-  font-family: var(--font-inter), 'Inter', system-ui, sans-serif;
+  font-family: var(--font-quattrocento), 'Quattrocento', serif;
   font-weight: 400;
   margin-top: 2px;
 }
@@ -93,7 +93,7 @@
 }
 
 .navLink {
-  font-family: var(--font-inter), 'Inter', system-ui, sans-serif;
+  font-family: var(--font-quattrocento), 'Quattrocento', serif;
   font-size: 0.8125rem;
   font-weight: 500;
   letter-spacing: 0.06em;
@@ -108,7 +108,7 @@
 }
 
 .navCta {
-  font-family: var(--font-inter), 'Inter', system-ui, sans-serif;
+  font-family: var(--font-quattrocento), 'Quattrocento', serif;
   font-size: 0.8125rem;
   font-weight: 600;
   letter-spacing: 0.08em;
@@ -149,7 +149,7 @@
 }
 
 .heroEyebrow {
-  font-family: var(--font-inter), 'Inter', system-ui, sans-serif;
+  font-family: var(--font-quattrocento), 'Quattrocento', serif;
   font-size: 0.6875rem;
   font-weight: 600;
   letter-spacing: 0.2em;
@@ -173,7 +173,7 @@
 }
 
 .heroBody {
-  font-family: var(--font-inter), 'Inter', system-ui, sans-serif;
+  font-family: var(--font-quattrocento), 'Quattrocento', serif;
   font-size: 1rem;
   line-height: 1.8;
   color: var(--cream-2);
@@ -193,7 +193,7 @@
   align-items: center;
   gap: 0.5rem;
   padding: 0.875rem 2rem;
-  font-family: var(--font-inter), 'Inter', system-ui, sans-serif;
+  font-family: var(--font-quattrocento), 'Quattrocento', serif;
   font-size: 0.8125rem;
   font-weight: 700;
   letter-spacing: 0.1em;
@@ -217,7 +217,7 @@
   align-items: center;
   gap: 0.5rem;
   padding: 0.875rem 2rem;
-  font-family: var(--font-inter), 'Inter', system-ui, sans-serif;
+  font-family: var(--font-quattrocento), 'Quattrocento', serif;
   font-size: 0.8125rem;
   font-weight: 600;
   letter-spacing: 0.1em;
@@ -246,7 +246,7 @@
 }
 
 .heroPanelLabel {
-  font-family: var(--font-inter), 'Inter', system-ui, sans-serif;
+  font-family: var(--font-quattrocento), 'Quattrocento', serif;
   font-size: 0.6875rem;
   font-weight: 600;
   letter-spacing: 0.18em;
@@ -278,7 +278,7 @@
 }
 
 .heroPanelStatKey {
-  font-family: var(--font-inter), 'Inter', system-ui, sans-serif;
+  font-family: var(--font-quattrocento), 'Quattrocento', serif;
   font-size: 0.8rem;
   color: var(--cream-2);
   letter-spacing: 0.04em;
@@ -349,7 +349,7 @@
 }
 
 .sectionEyebrow {
-  font-family: var(--font-inter), 'Inter', system-ui, sans-serif;
+  font-family: var(--font-quattrocento), 'Quattrocento', serif;
   font-size: 0.6875rem;
   font-weight: 600;
   letter-spacing: 0.2em;
@@ -380,7 +380,7 @@
 }
 
 .sectionBody {
-  font-family: var(--font-inter), 'Inter', system-ui, sans-serif;
+  font-family: var(--font-quattrocento), 'Quattrocento', serif;
   font-size: 1rem;
   line-height: 1.8;
   color: var(--cream-2);
@@ -417,7 +417,7 @@
 
 .problemItemNum {
   font-size: 0.6875rem;
-  font-family: var(--font-inter), 'Inter', system-ui, sans-serif;
+  font-family: var(--font-quattrocento), 'Quattrocento', serif;
   font-weight: 600;
   letter-spacing: 0.16em;
   text-transform: uppercase;
@@ -434,7 +434,7 @@
 }
 
 .problemItemBody {
-  font-family: var(--font-inter), 'Inter', system-ui, sans-serif;
+  font-family: var(--font-quattrocento), 'Quattrocento', serif;
   font-size: 0.875rem;
   line-height: 1.75;
   color: var(--cream-2);
@@ -482,7 +482,7 @@
 }
 
 .pillarTag {
-  font-family: var(--font-inter), 'Inter', system-ui, sans-serif;
+  font-family: var(--font-quattrocento), 'Quattrocento', serif;
   font-size: 0.6875rem;
   font-weight: 600;
   letter-spacing: 0.18em;
@@ -500,7 +500,7 @@
 }
 
 .pillarBody {
-  font-family: var(--font-inter), 'Inter', system-ui, sans-serif;
+  font-family: var(--font-quattrocento), 'Quattrocento', serif;
   font-size: 0.9375rem;
   line-height: 1.8;
   color: var(--cream-2);
@@ -521,7 +521,7 @@
   display: flex;
   align-items: flex-start;
   gap: 0.875rem;
-  font-family: var(--font-inter), 'Inter', system-ui, sans-serif;
+  font-family: var(--font-quattrocento), 'Quattrocento', serif;
   font-size: 0.875rem;
   line-height: 1.6;
   color: var(--cream-2);
@@ -579,7 +579,7 @@
 }
 
 .stepBody {
-  font-family: var(--font-inter), 'Inter', system-ui, sans-serif;
+  font-family: var(--font-quattrocento), 'Quattrocento', serif;
   font-size: 0.875rem;
   line-height: 1.75;
   color: var(--cream-2);
@@ -627,7 +627,7 @@
 }
 
 .attorneyItemBody {
-  font-family: var(--font-inter), 'Inter', system-ui, sans-serif;
+  font-family: var(--font-quattrocento), 'Quattrocento', serif;
   font-size: 0.875rem;
   line-height: 1.7;
   color: var(--cream-2);
@@ -651,7 +651,7 @@
 }
 
 .attorneyPanelBody {
-  font-family: var(--font-inter), 'Inter', system-ui, sans-serif;
+  font-family: var(--font-quattrocento), 'Quattrocento', serif;
   font-size: 0.875rem;
   line-height: 1.75;
   color: var(--cream-2);
@@ -660,7 +660,7 @@
 
 .attorneyBadge {
   display: inline-block;
-  font-family: var(--font-inter), 'Inter', system-ui, sans-serif;
+  font-family: var(--font-quattrocento), 'Quattrocento', serif;
   font-size: 0.6875rem;
   font-weight: 600;
   letter-spacing: 0.14em;
@@ -696,7 +696,7 @@
 }
 
 .pricingCardBadge {
-  font-family: var(--font-inter), 'Inter', system-ui, sans-serif;
+  font-family: var(--font-quattrocento), 'Quattrocento', serif;
   font-size: 0.6875rem;
   font-weight: 600;
   letter-spacing: 0.16em;
@@ -728,14 +728,14 @@
 }
 
 .pricingCardPeriod {
-  font-family: var(--font-inter), 'Inter', system-ui, sans-serif;
+  font-family: var(--font-quattrocento), 'Quattrocento', serif;
   font-size: 0.8125rem;
   color: var(--cream-2);
   margin-bottom: 0.75rem;
 }
 
 .pricingCardNote {
-  font-family: var(--font-inter), 'Inter', system-ui, sans-serif;
+  font-family: var(--font-quattrocento), 'Quattrocento', serif;
   font-size: 0.8125rem;
   font-style: italic;
   color: var(--cream-3);
@@ -754,7 +754,7 @@
   display: flex;
   align-items: flex-start;
   gap: 0.875rem;
-  font-family: var(--font-inter), 'Inter', system-ui, sans-serif;
+  font-family: var(--font-quattrocento), 'Quattrocento', serif;
   font-size: 0.875rem;
   line-height: 1.55;
   color: var(--cream-2);
@@ -775,7 +775,7 @@
   display: block;
   width: 100%;
   padding: 1rem;
-  font-family: var(--font-inter), 'Inter', system-ui, sans-serif;
+  font-family: var(--font-quattrocento), 'Quattrocento', serif;
   font-size: 0.8125rem;
   font-weight: 700;
   letter-spacing: 0.1em;
@@ -797,7 +797,7 @@
 }
 
 .pricingCardSub {
-  font-family: var(--font-inter), 'Inter', system-ui, sans-serif;
+  font-family: var(--font-quattrocento), 'Quattrocento', serif;
   font-size: 0.8125rem;
   color: var(--cream-3);
   text-align: center;
@@ -835,7 +835,7 @@
 }
 
 .quoteSource {
-  font-family: var(--font-inter), 'Inter', system-ui, sans-serif;
+  font-family: var(--font-quattrocento), 'Quattrocento', serif;
   font-size: 0.6875rem;
   font-weight: 600;
   letter-spacing: 0.18em;
@@ -877,7 +877,7 @@
 }
 
 .footerBrandSub {
-  font-family: var(--font-inter), 'Inter', system-ui, sans-serif;
+  font-family: var(--font-quattrocento), 'Quattrocento', serif;
   font-size: 0.75rem;
   color: var(--cream-3);
   letter-spacing: 0.04em;
@@ -891,7 +891,7 @@
 }
 
 .footerLink {
-  font-family: var(--font-inter), 'Inter', system-ui, sans-serif;
+  font-family: var(--font-quattrocento), 'Quattrocento', serif;
   font-size: 0.8125rem;
   color: var(--cream-3);
   text-decoration: none;
@@ -904,7 +904,7 @@
 }
 
 .footerCopy {
-  font-family: var(--font-inter), 'Inter', system-ui, sans-serif;
+  font-family: var(--font-quattrocento), 'Quattrocento', serif;
   font-size: 0.75rem;
   color: var(--cream-3);
   max-width: 1160px;
