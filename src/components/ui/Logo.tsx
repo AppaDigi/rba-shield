@@ -1,0 +1,13 @@
+export default function Logo({ className, fill = "currentColor" }: { className?: string; fill?: string }) {
+  return (
+    <svg 
+      className={className} 
+      xmlns="http://www.w3.org/2000/svg" 
+      viewBox="0 0 123.49 119.83"
+      fill={fill}
+    >
+      <path d="M0,67.16v16.63l64.17,36.03v-16.63L0,67.16Z"/>
+      <path d="M123.49,55.59V0h-47.63l26.23,14.5h6.9v16.58L52.34,0H0v20.53l96.89,52.63-8.18,11.34L0,36.99v16.45l91.81,49.17,26.2-34.49L19.29,14.5h29.34l74.87,41.09Z"/>
+    </svg>
+  );
+}

@@ -2,33 +2,33 @@
 
 :root {
   /* Base (dominant) */
-  --ink: #0A0A0A;
-  --deep-navy: #0B1A2B;
-  --slate-navy: #1C2A3A;
+  --ink: #000000;
+  --deep-navy: #0A0A0A; /* Re-mapped to near black */
+  --slate-navy: #1A1A1A; /* Re-mapped to dark gray */
   
   /* White */
-  --warm-white: #F4F1EA;
-  --parchment: #EAE5D8;
+  --warm-white: #FFFFFF;
+  --parchment: #F5F5F5;
   
-  /* Blue */
-  --primary-blue: #142D4C;
-  --muted-blue: #243F60;
-  --soft-blue: #3A5A7A;
+  /* Blue re-mapped to neutrals to prevent breaking */
+  --primary-blue: #050505; 
+  --muted-blue: #111111;
+  --soft-blue: #222222;
   
   /* Red */
-  --heritage-red: #7A1F1F;
-  --deep-red: #5A1616;
+  --heritage-red: #9B111E; /* Deeper stark red */
+  --deep-red: #660000;
   
   /* Gold */
-  --brass: #C2A35D;
-  --muted-gold: #A68B4A;
+  --brass: #C5A059;
+  --muted-gold: #9E8045;
 
   /* Legacy mappings to prevent breaking existing components before refactor */
   --background: var(--ink);
   --foreground: var(--warm-white);
   --brand-gold: var(--brass);
   --brand-crimson: var(--heritage-red);
-  --brand-navy: var(--deep-navy);
+  --brand-navy: var(--ink);
 }
 
 @theme inline {
@@ -56,6 +56,10 @@
   --font-sans: var(--font-quattrocento);
 }
 
+html {
+  scroll-behavior: smooth;
+}
+
 * {
   margin: 0;
   padding: 0;
@@ -63,11 +67,17 @@
 }
 
 body {
-  background: var(--ink);
+  background:
+    radial-gradient(circle at top, rgba(58, 90, 122, 0.18), transparent 28%),
+    linear-gradient(180deg, #09121d 0%, #08111d 28%, #071019 60%, #080d14 100%);
   color: var(--warm-white);
-  font-family: var(--font-sans);
+  font-family: var(--font-quattrocento), serif;
   overflow-x: hidden;
   -webkit-font-smoothing: antialiased;
+}
+
+a {
+  color: inherit;
 }
 
 h1, h2, h3, h4, .font-display {
