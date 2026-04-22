@@ -313,7 +313,7 @@ export default function ShieldPage() {
             <Link href="/attorneys" className={styles.footerLink}>For Attorneys</Link>
             <Link href="/join" className={styles.footerLink}>Join</Link>
             <a
-              href="https://www.reformedbusinessalliance.com"
+              href="https://reformedbusinessalliance.com/"
               className={styles.footerLink}
               target="_blank"
               rel="noopener noreferrer"
